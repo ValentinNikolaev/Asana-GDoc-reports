@@ -14,6 +14,21 @@ switch (DEBUG) {
         break;
 }
 
+$weekDay = date("w");
+if ($weekDay < 7 && $weekDay > 1) {
+    $previous = "-1";
+} elseif ($weekDay == 7) {
+    $previous = "-2";
+} else {
+    $previous = "-3";
+}
+
+
+$datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')));
+$startTasksDate = $datetime->format('Y-m-d\TH:i:s\Z');
+echo 'Start from:'.$startTasksDate."<br>";
+
+
 /**
  * Create a client using Asana API key
  */
@@ -43,7 +58,7 @@ foreach ($workspacesJson->data as $workspace) {
     foreach ($projectsJson->data as $project) {
         echo '<strong>[ ' . $project->name . ' (id ' . $project->id . ')' . ' ]</strong><br>' . PHP_EOL;
         // Get all tasks in the current project
-        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => 'now']);
+        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate]);
         $tasksJson = json_decode($tasks);
         if ($asana->responseCode != '200' || is_null($tasks)) {
             echo 'Error while trying to connect to Asana, response code: ' . $asana->responseCode;
