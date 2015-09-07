@@ -58,7 +58,7 @@ foreach ($workspacesJson->data as $workspace) {
     foreach ($projectsJson->data as $project) {
 
         // Get all tasks in the current project
-        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate]);
+        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate, 'opt_fields' => 'tags, name']);
         $tasksJson = json_decode($tasks);
         if ($asana->responseCode != '200' || is_null($tasks)) {
             echo 'Error while trying to connect to Asana, response code: ' . $asana->responseCode;
@@ -68,7 +68,8 @@ foreach ($workspacesJson->data as $workspace) {
         foreach ($tasksJson->data as $task) {
             $lastChar = substr(trim($task->name), -1);
             if ($lastChar != ':')
-                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> (id ' . $task->id . ')' . ' ]<br>' . PHP_EOL;
+                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
+                        .(($task->tags) ? " [".implode (", ", $task->tags)."] " : '').'<br>' . PHP_EOL;
         }
 
         if ($tasks) {
