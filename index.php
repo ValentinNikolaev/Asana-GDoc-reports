@@ -3,6 +3,7 @@
 require __DIR__. '/config.php';
 require __DIR__ . '/asana.php';
 
+
 /**
  * set debug level
  */
@@ -48,8 +49,11 @@ foreach ($workspacesJson->data as $workspace) {
             echo 'Error while trying to connect to Asana, response code: ' . $asana->responseCode;
             continue;
         }
+
         foreach ($tasksJson->data as $task) {
-            echo '+ ' . $task->name . ' (id ' . $task->id . ')' . ' ]<br>' . PHP_EOL;
+            $lastChar = substr(trim($task->name), -1);
+            if ($lastChar != ':')
+                echo '+ ' . $task->name . ' (id ' . $task->id . ')' . ' ]<br>' . PHP_EOL;
         }
     }
 }
