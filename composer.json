@@ -1,6 +1,5 @@
 {
   "require": {
-    "asana/asana": "^0.1.2",
-    "monolog/monolog": "1.*"
+    "asana/asana": "^0.1.2"
   }
 }
