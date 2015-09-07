@@ -1,14 +1,14 @@
 <?php
 
 require __DIR__. '/config.php';
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/asana.php';
 
 /**
  * set debug level
  */
 switch (DEBUG) {
     case 1:
-        error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
+        error_reporting(E_ALL);
         ini_set('display_errors', true);
         break;
 }
@@ -17,30 +17,13 @@ switch (DEBUG) {
  * Create a client using Asana API key
  */
 
-$client = Asana\Client::basicAuth(ASANA_API_KEY);
+$asana = new Asana(array(
+    'apiKey' => ASANA_API_KEY
+));
 
-/**
- * Get all workspaces
- */
-$currentWorkspaces = [];
-$workspacesTasks = [];
+$projects = json_decode($asana->getProjects());
 
-$workspaces = $client->workspaces->findAll();
-
-if (!$workspaces) {
-    throw new Exception("No workspaces were found");
+foreach ($projects as $project) {
+    var_dump($project);
 }
-
-/**
- * get workspaces tasks
- */
-foreach ($workspaces as $workspace) {
-    $workspacesTasks[] = $client->projects->findAll(['workspace' => $workspace->id]);
-}
-
-if (!$workspacesTasks) {
-    throw new Exception("No tasks were found");
-}
-
-
 
