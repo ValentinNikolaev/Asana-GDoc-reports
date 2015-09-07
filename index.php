@@ -55,5 +55,7 @@ foreach ($workspacesJson->data as $workspace) {
             if ($lastChar != ':')
                 echo '+ ' . $task->name . ' (id ' . $task->id . ')' . ' ]<br>' . PHP_EOL;
         }
+
+        echo '<hr>';
     }
 }
