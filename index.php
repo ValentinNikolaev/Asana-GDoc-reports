@@ -23,8 +23,13 @@ $client = Asana\Client::basicAuth(ASANA_API_KEY);
  * Get all workspaces
  */
 $currentWorkspaces = [];
-$workspaces = $client->projects->findAll();
+$workspaces = $client->workspaces->findAll();
 
 if (!$workspaces) {
     throw new Exception("No workspaces were found");
 }
+
+
+
+
+
