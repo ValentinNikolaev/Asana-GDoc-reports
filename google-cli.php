@@ -226,7 +226,7 @@ function generateXlsReports($data, $fileName) {
     for ($row = 1; $row <= $highestRow; $row++) {
         foreach ($alphas as $column) {
             $cellAddress = $column.$row;
-            $cellValue = trim($sheet->getCell($column.$row)->getFormattedValue());
+            $cellValue = trim($sheet->getCell($cellAddress)->getFormattedValue());
             switch ($cellValue) {
                 case '<date>':
                     $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $date);
@@ -258,6 +258,40 @@ function generateXlsReports($data, $fileName) {
                     $tableCells[] = 'link';
                     break;
             }
+        }
+    }
+
+    /**
+     * loop tasks
+     */
+    if ($tableStartCell) {
+        $tableStartCellColumn = $tableStartCell[0];
+        $tableStartCellRow = substr($tableStartCell, 1);
+
+        foreach ($data['tasks'] as $task) {
+            $tableStartCellColumnLoop = $tableStartCellColumn;
+            foreach($tableCells as $tplCell) {
+                $tableCellAddress = $tableStartCellColumnLoop.$tableStartCellRow;
+                $value = '';
+                $url = false;
+                if (isset($task[$tplCell])) {
+                    if (is_array($task[$tplCell])) {
+                        if (isset($task[$tplCell]['title']))
+                            $value = $task[$tplCell]['title'];
+                        if (isset($task[$tplCell]['url']))
+                            $url = $task[$tplCell]['url'];
+                    } else {
+                        $value = $task[$tplCell];
+                    }
+
+                }
+                $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress , $value);
+                if ($url)
+                    $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
+                $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
+            }
+            $tableStartCellRow++;
+
         }
     }
 
@@ -299,7 +333,7 @@ function getAsanaTasks($startTasksDate = 'now') {
     $workspaces = $asana->getWorkspaces();
 // As Asana API documentation says, when response is successful, we receive a 200 in response so...
     if ($asana->responseCode != '200' || is_null($workspaces)) {
-        printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+        printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code: ' . $asana->responseCode."\n");
         return;
     }
     $workspacesJson = json_decode($workspaces);
@@ -309,7 +343,7 @@ function getAsanaTasks($startTasksDate = 'now') {
         $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
         // As Asana API documentation says, when response is successful, we receive a 200 in response so...
         if ($asana->responseCode != '200' || is_null($projects)) {
-            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code get projects]: ' . $asana->responseCode);
+            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code get projects]: ' . $asana->responseCode."\n");
             continue;
         }
         $projectsJson = json_decode($projects);
@@ -325,7 +359,7 @@ function getAsanaTasks($startTasksDate = 'now') {
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks], response code: ' . $asana->responseCode);
+                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks], response code: ' . $asana->responseCode."\n");
                 continue;
             }
             $tasks = array();
@@ -334,7 +368,10 @@ function getAsanaTasks($startTasksDate = 'now') {
                 $lastChar = substr(trim($task->name), -1);
                 if ($lastChar != ':')
                     $tasks[] = array(
-                        'link' => '<a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> ',
+                        'link' => [
+                            'url' => 'https://app.asana.com/0/'.$project->id.'/'.$task->id,
+                            'title' => $task->name
+                            ],
                         'task_type' => '',
                         'task_completed' => '',
                         'notes' => '',
