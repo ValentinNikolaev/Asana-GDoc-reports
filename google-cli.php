@@ -11,7 +11,7 @@ define('SCOPES', implode(' ', array(
         Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_METADATA  )
 ));
 
-define('DAILY_REPORT_TEMPLATE', '1OnrqDAx3AmmplZi5MfNxP6-UEuHdc1l97QqHLFpjd7U');
+define('DAILY_REPORT_TEMPLATE', '17mpulibwqYKlWLmBZx_sM6_nEHWfprrsgVCTNSQ6Gfk');
 define('SHEET_INDEX', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
 /**
@@ -180,6 +180,18 @@ function retrieveAllFiles($service) {
     return $result;
 }
 
+function xls($fileName  ){
+    $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+    $objPHPExcel = $objReader->load($fileName);// Change the file
+    $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('A1', 'Hello')
+        ->setCellValue('B1', 'World!');
+
+// Write the file
+    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+    $objWriter->save($fileName."-changed");
+}
+
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Drive($client);
@@ -200,10 +212,10 @@ if (count($result) == 0) {
             $downloadResult = downloadFile($service, $file);
 
             if ($downloadResult) {
-                printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $credentialsPath);
                 $fileFs = TMP_PATH. $file->getId().'.xls';
                 if (file_put_contents($fileFs, $downloadResult)) {
                     printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $fileFs);
+                    xls($fileFs);
                 } else {
                     printf("Credentials saved to %s: ".colorize("FAILED", "FAILURE")."\n", $fileFs);
 
