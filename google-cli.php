@@ -187,7 +187,7 @@ function retrieveAllFiles($service) {
     return $result;
 }
 
-function xls($fileName  ){
+function xls($fileName){
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
     $objPHPExcel->setActiveSheetIndex(0)
@@ -197,6 +197,18 @@ function xls($fileName  ){
 // Write the file
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileName."-changed");
+}
+
+function generateXlsReports($data, $fileName) {
+    print colorize("Generate report for project ".$data['project']->name, "NOTE")."\n";
+    $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+    $objPHPExcel = $objReader->load($fileName);// Change the file
+    // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+    $objPHPExcel->setActiveSheetIndex(0);
+    $sheet = $objPHPExcel->getActiveSheet();
+    $highestRow = $sheet->getHighestRow();
+    $highestColumn = $sheet->getHighestColumn();
+    echo $highestRow.", ".$highestColumn."\n";
 }
 
 function getStartTasksDate() {
@@ -241,7 +253,7 @@ function getAsanaTasks($startTasksDate = 'now') {
         $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
         // As Asana API documentation says, when response is successful, we receive a 200 in response so...
         if ($asana->responseCode != '200' || is_null($projects)) {
-            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code get projects]: ' . $asana->responseCode);
             continue;
         }
         $projectsJson = json_decode($projects);
@@ -257,7 +269,7 @@ function getAsanaTasks($startTasksDate = 'now') {
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks], response code: ' . $asana->responseCode);
                 continue;
             }
             $tasks = array();
@@ -272,6 +284,8 @@ function getAsanaTasks($startTasksDate = 'now') {
                 $returnData[$project->id]['tasks'] = $tasks;
                 $tasksCounter = $tasksCounter + count($tasks);
                 $projectsCounter++;
+            } else {
+                unset($returnData[$project->id]);
             }
 
 //            if ($tasks) {
@@ -304,7 +318,7 @@ if (count($result) == 0) {
 } else {
     print colorize("Files", "NOTE")."\n";
     foreach ($result as $file) {
-        printf("%s (%s)\n", $file->getTitle(), $file->getId());
+//        printf("%s (%s)\n", $file->getTitle(), $file->getId());
 //
 //        var_dump($file);die;
         if ($file->getId()  == DAILY_REPORT_TEMPLATE) {
@@ -313,10 +327,10 @@ if (count($result) == 0) {
             if ($downloadResult) {
                 $fileFs = TMP_PATH. $file->getId().'.xls';
                 if (file_put_contents($fileFs, $downloadResult)) {
-                    printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $fileFs);
+                    printf("Template saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $fileFs);
                     $templates[] = ($fileFs);
                 } else {
-                    printf("Credentials saved to %s: ".colorize("FAILED", "FAILURE")."\n", $fileFs);
+                    printf("Template saved to %s: ".colorize("FAILED", "FAILURE")."\n", $fileFs);
 
                 }
             } else {
@@ -337,7 +351,21 @@ if ($templates) {
     printf("Processing Asana tasks....\n");
     printf("Start from: ".colorize($startTasksDate, "WARNING")."\n");
     $tasks = getAsanaTasks($startTasksDate);
-    printf("Tasks found: ".$tasks['tasksCounter'].", projects found: ".$tasks['projectsCounter']." \n");
+    if (!is_array($tasks))
+        printf("Something goes wrong during Asana request"."\n");
+    else {
+        printf("Tasks found: ".$tasks['tasksCounter'].", projects found: ".$tasks['projectsCounter']." \n");
+
+        foreach ($templates as $template) {
+            printf("Processing Report template %s \n", $template);
+            foreach ($tasks['data'] as $taskData) {
+//                var_dump($taskData);die;
+                generateXlsReports($taskData, $template);
+            }
+        }
+    }
+
+
 } else {
     printf("Nothing to do here");
 }
