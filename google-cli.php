@@ -5,6 +5,7 @@ require __DIR__. '/vendor/autoload.php';
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
 define('TMP_PATH', __DIR__.'/tmp/');
+define('REPORTS_PATH', __DIR__.'/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
 define('SCOPES', implode(' ', array(
         Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_METADATA  )
@@ -31,6 +32,13 @@ function getClient() {
             printf("Create tmp dir: ".colorize("SUCCESS", "SUCCESS")."\n", TMP_PATH);
         else
             printf("Create tmp dir: ".colorize("FAILED", "FAILURE")."\n", TMP_PATH);
+    }
+
+    if(!file_exists(REPORTS_PATH)) {
+        if (mkdir(REPORTS_PATH, 0700, true))
+            printf("Create report dir: ".colorize("SUCCESS", "SUCCESS")."\n", REPORTS_PATH);
+        else
+            printf("Create report dir: ".colorize("FAILED", "FAILURE")."\n", REPORTS_PATH);
     }
 
     if (file_exists($credentialsPath)) {
