@@ -4,11 +4,13 @@ require __DIR__. '/vendor/autoload.php';
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
-define('CREDENTIALS_PATH_PHP', __DIR__.'/tmp/drive-api-asana-gdoc.json');
+define('TMP_PATH', __DIR__.'/tmp/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
 define('SCOPES', implode(' ', array(
         Google_Service_Drive::DRIVE_METADATA_READONLY)
 ));
+
+define('DAILY_REPORT_TEMPLATE', '17_oKdL03w2dWVifa_MJOL0nm8cY7iZrpx3x0qfBgRrA');
 
 /**
  * Returns an authorized API client.
@@ -23,7 +25,12 @@ function getClient() {
 
     // Load previously authorized credentials from a file.
     $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
-    $credentialsPathPhp = expandHomeDirectory(CREDENTIALS_PATH_PHP);
+    if(!file_exists(TMP_PATH)) {
+        if (mkdir(TMP_PATH, 0700, true))
+            printf("Create tmp dir: ".colorize("SUCCESS", "SUCCESS")."\n", TMP_PATH);
+        else
+            printf("Create tmp dir: ".colorize("FAILED", "FAILURE")."\n", TMP_PATH);
+    }
 
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
@@ -43,9 +50,7 @@ function getClient() {
             mkdir(dirname($credentialsPath), 0700, true);
         }
 
-        if(!file_exists(dirname($credentialsPathPhp))) {
-            mkdir(dirname($credentialsPathPhp), 0700, true);
-        }
+
 
         if (file_put_contents($credentialsPath, $accessToken)) {
             printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $credentialsPath);
