@@ -4,18 +4,11 @@ require __DIR__. '/vendor/autoload.php';
 require __DIR__. '/config.php';
 require __DIR__ . '/asana.php';
 
-define('APPLICATION_NAME', 'Asana GDoc CLI');
-define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
-define('TMP_PATH', __DIR__.'/tmp/');
-define('REPORTS_PATH', __DIR__.'/reports/');
-define('CLIENT_SECRET_PATH', 'client_secret.json');
-define('RESPONSE_PERSON', 'Eugene Pyvovarov');
+
 define('SCOPES', implode(' ', array(
         Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_METADATA  )
 ));
 
-define('DAILY_REPORT_TEMPLATE', '17mpulibwqYKlWLmBZx_sM6_nEHWfprrsgVCTNSQ6Gfk');
-define('SHEET_INDEX', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
 $templates = [];
 
