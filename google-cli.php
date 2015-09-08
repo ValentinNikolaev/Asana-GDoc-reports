@@ -1,6 +1,8 @@
 <?php
 
 require __DIR__. '/vendor/autoload.php';
+require __DIR__. '/config.php';
+require __DIR__ . '/asana.php';
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
@@ -13,6 +15,11 @@ define('SCOPES', implode(' ', array(
 
 define('DAILY_REPORT_TEMPLATE', '17mpulibwqYKlWLmBZx_sM6_nEHWfprrsgVCTNSQ6Gfk');
 define('SHEET_INDEX', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+$templates = [];
+
+
+
 
 /**
  * Returns an authorized API client.
@@ -192,6 +199,22 @@ function xls($fileName  ){
     $objWriter->save($fileName."-changed");
 }
 
+function getStartTasksDate() {
+    $weekDay = date("w");
+    if ($weekDay < 7 && $weekDay > 1) {
+        $previous = "-1";
+    } elseif ($weekDay == 7) {
+        $previous = "-2";
+    } else {
+        $previous = "-3";
+    }
+
+
+    $datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')));
+    return $datetime->format('Y-m-d\TH:i:s\Z');
+
+}
+
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Drive($client);
@@ -215,7 +238,7 @@ if (count($result) == 0) {
                 $fileFs = TMP_PATH. $file->getId().'.xls';
                 if (file_put_contents($fileFs, $downloadResult)) {
                     printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $fileFs);
-                    xls($fileFs);
+                    $templates[] = ($fileFs);
                 } else {
                     printf("Credentials saved to %s: ".colorize("FAILED", "FAILURE")."\n", $fileFs);
 
@@ -228,3 +251,15 @@ if (count($result) == 0) {
         }
     }
 }
+
+/**
+ * Process reports
+ */
+printf("Templates download: ".colorize(count($templates), "NOTE")."\n");
+if ($templates) {
+    $startTasksDate = getStartTasksDate();
+    printf("Start from: ".colorize($startTasksDate, "WARNING")."\n");
+} else {
+    printf("Nothing to do here");
+}
+
