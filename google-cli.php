@@ -215,6 +215,82 @@ function getStartTasksDate() {
 
 }
 
+function getAsanaTasks($startTasksDate = 'now') {
+    /**
+     * Create a client using Asana API key
+     */
+    $asana = new Asana(array(
+        'apiKey' => ASANA_API_KEY
+    ));
+
+    $returnData = [];
+    $tasksCounter = 0;
+    $projectsCounter = 0;
+
+// Get all workspaces
+    $workspaces = $asana->getWorkspaces();
+// As Asana API documentation says, when response is successful, we receive a 200 in response so...
+    if ($asana->responseCode != '200' || is_null($workspaces)) {
+        printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+        return;
+    }
+    $workspacesJson = json_decode($workspaces);
+    foreach ($workspacesJson->data as $workspace) {
+//        echo '<h3>*** ' . $workspace->name . ' (id ' . $workspace->id . ')' . ' ***</h3><br />' . PHP_EOL;
+        // Get all projects in the current workspace (all non-archived projects)
+        $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
+        // As Asana API documentation says, when response is successful, we receive a 200 in response so...
+        if ($asana->responseCode != '200' || is_null($projects)) {
+            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+            continue;
+        }
+        $projectsJson = json_decode($projects);
+        foreach ($projectsJson->data as $project) {
+            $returnData[$project->id] = [
+                'workspace' => $workspace,
+                'project' => $project,
+                'tasks' => [],
+            ];
+            // Get all tasks in the current project
+            $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate/*, 'opt_fields' => 'tags, name'*/]);
+//        var_dump($tasks);die;
+
+            $tasksJson = json_decode($tasks);
+            if ($asana->responseCode != '200' || is_null($tasks)) {
+                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana, response code: ' . $asana->responseCode);
+                continue;
+            }
+            $tasks = array();
+            foreach ($tasksJson->data as $task) {
+
+                $lastChar = substr(trim($task->name), -1);
+                if ($lastChar != ':')
+                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
+                        /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
+            }
+            if ($tasks) {
+                $returnData[$project->id]['tasks'] = $tasks;
+                $tasksCounter = $tasksCounter + count($tasks);
+                $projectsCounter++;
+            }
+
+//            if ($tasks) {
+//                echo '<strong>[ ' . $project->name . ' (id ' . $project->id . ')' . ' ]</strong><br>' . PHP_EOL;
+//                echo implode("", $tasks);
+//                echo '<hr>';
+//            }
+
+
+        }
+    }
+
+        return [
+            'data' => $returnData,
+            'tasksCounter' => $tasksCounter,
+            'projectsCounter' => $projectsCounter,
+        ];
+}
+
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Drive($client);
@@ -258,7 +334,10 @@ if (count($result) == 0) {
 printf("Templates download: ".colorize(count($templates), "NOTE")."\n");
 if ($templates) {
     $startTasksDate = getStartTasksDate();
+    printf("Processing Asana tasks....\n");
     printf("Start from: ".colorize($startTasksDate, "WARNING")."\n");
+    $tasks = getAsanaTasks($startTasksDate);
+    printf("Tasks found: ".$tasks['tasksCounter'].", projects found: ".$tasks['projectsCounter']." \n");
 } else {
     printf("Nothing to do here");
 }
