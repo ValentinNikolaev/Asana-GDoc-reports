@@ -7,10 +7,11 @@ define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
 define('TMP_PATH', __DIR__.'/tmp/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
 define('SCOPES', implode(' ', array(
-        Google_Service_Drive::DRIVE_METADATA_READONLY)
+        Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_METADATA  )
 ));
 
-define('DAILY_REPORT_TEMPLATE', '17_oKdL03w2dWVifa_MJOL0nm8cY7iZrpx3x0qfBgRrA');
+define('DAILY_REPORT_TEMPLATE', '1OnrqDAx3AmmplZi5MfNxP6-UEuHdc1l97QqHLFpjd7U');
+define('SHEET_INDEX', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
 /**
  * Returns an authorized API client.
@@ -118,21 +119,57 @@ function colorize($text, $status) {
  * @param Google_Servie_Drive_DriveFile $file Drive File instance.
  * @return String The file's content if successful, null otherwise.
  */
-function downloadFile($service, $file) {
-    $downloadUrl = $file->getDownloadUrl();
+function downloadFile($service, $file)
+{
+    $exportLinks =$file->getExportLinks();
+    if (array_key_exists(SHEET_INDEX, $exportLinks)) {
+        $downloadUrl = $exportLinks[SHEET_INDEX];
+    } else {
+        printf("No export link for a sheet: " . colorize("No export link for a file.", "FAILURE") . "\n");
+        return null;
+    }
+
     if ($downloadUrl) {
         $request = new Google_Http_Request($downloadUrl, 'GET', null, null);
         $httpRequest = $service->getClient()->getAuth()->authenticatedRequest($request);
         if ($httpRequest->getResponseHttpCode() == 200) {
             return $httpRequest->getResponseBody();
         } else {
-            // An error occurred.
+            printf("Download File: " . colorize("An error occurred during file request.", "FAILURE") . "\n");
             return null;
         }
     } else {
-        // The file doesn't have any content stored on Drive.
+        printf("Download File: " . colorize("No export link for a file.", "FAILURE") . "\n");
         return null;
     }
+}
+
+/**
+ * Retrieve a list of File resources.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @return Array List of Google_Service_Drive_DriveFile resources.
+ */
+function retrieveAllFiles($service) {
+    $result = array();
+    $pageToken = NULL;
+
+    do {
+        try {
+            $parameters = array();
+            if ($pageToken) {
+                $parameters['pageToken'] = $pageToken;
+            }
+            $files = $service->files->listFiles($parameters);
+
+            $result = array_merge($result, $files->getItems());
+            $pageToken = $files->getNextPageToken();
+        } catch (Exception $e) {
+            print "An error occurred: " . $e->getMessage();
+            $pageToken = NULL;
+        }
+    } while ($pageToken);
+    return $result;
 }
 
 // Get the API client and construct the service object.
@@ -140,18 +177,33 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
-$optParams = array(
-    'maxResults' => 10,
-);
-$results = $service->files->listFiles($optParams);
+$result = retrieveAllFiles($service);
 
-if (count($results->getItems()) == 0) {
+
+if (count($result) == 0) {
     print "No files found.\n";
 } else {
     print colorize("Files", "NOTE")."\n";
-    foreach ($results->getItems() as $file) {
+    foreach ($result as $file) {
         printf("%s (%s)\n", $file->getTitle(), $file->getId());
-        if ($file->getId() == DAILY_REPORT_TEMPLATE) {
+//
+//        var_dump($file);die;
+        if ($file->getId()  == DAILY_REPORT_TEMPLATE) {
+            $downloadResult = downloadFile($service, $file);
+
+            if ($downloadResult) {
+                printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $credentialsPath);
+                $fileFs = TMP_PATH. $file->getId().'.xls';
+                if (file_put_contents($fileFs, $downloadResult)) {
+                    printf("Credentials saved to %s: ".colorize("SUCCESS", "SUCCESS")."\n", $fileFs);
+                } else {
+                    printf("Credentials saved to %s: ".colorize("FAILED", "FAILURE")."\n", $fileFs);
+
+                }
+            } else {
+                printf("Download result for '%s': ".colorize("FAILED", "FAILURE")."\n", $file->getTitle());
+
+            }
 
         }
     }
