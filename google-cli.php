@@ -291,7 +291,7 @@ function generateXlsReports($data, $fileName) {
                     $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
                 $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
             }
-            $tableStartCellRowLoop = $tableStartCellRowLoop + $key;
+            $tableStartCellRowLoop = $tableStartCellRow + $key;
 
         }
     }
