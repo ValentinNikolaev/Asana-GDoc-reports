@@ -9,6 +9,7 @@ define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
 define('TMP_PATH', __DIR__.'/tmp/');
 define('REPORTS_PATH', __DIR__.'/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
+define('RESPONSE_PERSON', 'Eugene Pyvovarov');
 define('SCOPES', implode(' ', array(
         Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_METADATA  )
 ));
@@ -200,6 +201,8 @@ function xls($fileName){
 }
 
 function generateXlsReports($data, $fileName) {
+    $alphas = range('A', 'Z');
+    $highestRowBoard = 50;
     print colorize("Generate report for project ".$data['project']->name, "NOTE")."\n";
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
@@ -208,7 +211,60 @@ function generateXlsReports($data, $fileName) {
     $sheet = $objPHPExcel->getActiveSheet();
     $highestRow = $sheet->getHighestRow();
     $highestColumn = $sheet->getHighestColumn();
-    echo $highestRow.", ".$highestColumn."\n";
+    if (!in_array($highestColumn, $alphas)) {
+        printf(colorize("FAILED:", "FAILURE").'Too many columns in a template. Highest Column %s \n', $highestColumn);
+        return;
+    }
+
+    $highestRow = $highestRow > $highestRowBoard ? $highestRowBoard : $highestRow;
+
+    $tableStartCell = '';
+    $tableCells = [];
+    $date = date('YYYY mm dd');
+
+    /** try to find meta tags */
+    for ($row = 1; $row <= $highestRow; $row++) {
+        foreach ($alphas as $column) {
+            $cellAddress = $column.$row;
+            $cellValue = trim($sheet->getCell($column.$row)->getFormattedValue());
+            switch ($cellValue) {
+                case '<date>':
+                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $date);
+                    break;
+                case '<person>':
+                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, RESPONSE_PERSON);
+                    break;
+                case '<project_title>':
+                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress , $data['project']->name);
+                    break;
+                case '<task_type>':
+                    if (!$tableStartCell)
+                        $tableStartCell = $cellAddress;
+                    $tableCells[] = 'task_type';
+                    break;
+                case '<task_completed>':
+                    if (!$tableStartCell)
+                        $tableStartCell = $cellAddress;
+                    $tableCells[] = 'task_completed';
+                    break;
+                case '<notes>':
+                    if (!$tableStartCell)
+                        $tableStartCell = $cellAddress;
+                    $tableCells[] = 'notes';
+                    break;
+                case '<link>':
+                    if (!$tableStartCell)
+                        $tableStartCell = $cellAddress;
+                    $tableCells[] = 'link';
+                    break;
+            }
+        }
+    }
+
+    $fileReport = REPORTS_PATH. $data['project']->name." ".$date.".xls";
+    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+    $objWriter->save($fileReport);
+
 }
 
 function getStartTasksDate() {
@@ -277,6 +333,12 @@ function getAsanaTasks($startTasksDate = 'now') {
 
                 $lastChar = substr(trim($task->name), -1);
                 if ($lastChar != ':')
+                    $tasks[] = array(
+                        'link' => '<a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> ',
+                        'task_type' => '',
+                        'task_completed' => '',
+                        'notes' => '',
+                    );
                     $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
                         /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
             }
