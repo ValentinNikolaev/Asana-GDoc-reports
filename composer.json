@@ -10,7 +10,8 @@
       }
     ],
   "require": {
-    "ajimix/asana-api-php-class": "2.14.0"
+    "ajimix/asana-api-php-class": "2.14.0",
+    "google/apiclient": "1.*"
   }
 
 }
