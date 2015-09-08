@@ -361,6 +361,7 @@ function getAsanaTasks($startTasksDate = 'now') {
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
                 printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks, project '.$project->name.'], response code: ' . $asana->responseCode."\n");
+                unset($returnData[$project->id]);
                 continue;
             }
             $tasks = array();
