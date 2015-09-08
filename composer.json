@@ -11,7 +11,8 @@
     ],
   "require": {
     "ajimix/asana-api-php-class": "2.14.0",
-    "google/apiclient": "1.*"
+    "google/apiclient": "1.*",
+    "phpoffice/phpexcel": "1.*"
   }
 
 }
