@@ -344,7 +344,7 @@ function getAsanaTasks($startTasksDate = 'now') {
         $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
         // As Asana API documentation says, when response is successful, we receive a 200 in response so...
         if ($asana->responseCode != '200' || is_null($projects)) {
-            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana, response code get projects]: ' . $asana->responseCode."\n");
+            printf(colorize("FAILED:", "FAILURE").'Error while trying to connect to Asana [get project, workspace '.$workspace->name.'], response code: ' . $asana->responseCode."\n");
             continue;
         }
         $projectsJson = json_decode($projects);
@@ -360,7 +360,7 @@ function getAsanaTasks($startTasksDate = 'now') {
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks], response code: ' . $asana->responseCode."\n");
+                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks, project '.$project->name.'], response code: ' . $asana->responseCode."\n");
                 continue;
             }
             $tasks = array();
