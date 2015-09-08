@@ -220,7 +220,7 @@ function generateXlsReports($data, $fileName) {
 
     $tableStartCell = '';
     $tableCells = [];
-    $date = date('YYYY mm dd');
+    $dateReport = date('d m Y');
 
     /** try to find meta tags */
     for ($row = 1; $row <= $highestRow; $row++) {
@@ -229,7 +229,7 @@ function generateXlsReports($data, $fileName) {
             $cellValue = trim($sheet->getCell($cellAddress)->getFormattedValue());
             switch ($cellValue) {
                 case '<date>':
-                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $date);
+                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $dateReport);
                     break;
                 case '<person>':
                     $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, RESPONSE_PERSON);
@@ -267,11 +267,12 @@ function generateXlsReports($data, $fileName) {
     if ($tableStartCell) {
         $tableStartCellColumn = $tableStartCell[0];
         $tableStartCellRow = substr($tableStartCell, 1);
-
-        foreach ($data['tasks'] as $task) {
+        $tableStartCellRowLoop = $tableStartCellRow;
+        foreach ($data['tasks'] as $key => $task) {
             $tableStartCellColumnLoop = $tableStartCellColumn;
+
             foreach($tableCells as $tplCell) {
-                $tableCellAddress = $tableStartCellColumnLoop.$tableStartCellRow;
+                $tableCellAddress = $tableStartCellColumnLoop.$tableStartCellRowLoop;
                 $value = '';
                 $url = false;
                 if (isset($task[$tplCell])) {
@@ -290,12 +291,12 @@ function generateXlsReports($data, $fileName) {
                     $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
                 $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
             }
-            $tableStartCellRow++;
+            $tableStartCellRowLoop = $tableStartCellRowLoop + $key;
 
         }
     }
 
-    $fileReport = REPORTS_PATH. $data['project']->name." ".$date.".xls";
+    $fileReport = REPORTS_PATH. $data['project']->name." ".$dateReport.".xls";
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileReport);
 
