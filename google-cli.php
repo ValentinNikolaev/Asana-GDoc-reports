@@ -289,11 +289,30 @@ function generateXlsReports($data, $fileName) {
         }
     }
 
-    $fileReport = REPORTS_PATH. $data['project']->name." ".date('m_d_Y').".xls";
+    $folder = createProjectReportDir($data['project']->name);
+    $fileName = $data['project']->name." ".date('m_d_Y').".xls";
+    $fileReport = $folder.$fileName;
+    printf("Save report to %s ... \n", $fileReport);
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileReport);
     return $fileReport;
+}
 
+function createProjectReportDir($projectName ='') {
+    if ($projectName) {
+        $pathDir = REPORTS_PATH.$projectName.'/';
+        if (!file_exists($pathDir)) {
+            printf("Project dir '%s' doesn't exists. Try to create... \n", $pathDir);
+            if (mkdir($pathDir, 0777, true)) {
+                printf("Project dir %s created: ".colorize("SUCCESS", "SUCCESS")."\n", $pathDir);
+                return $pathDir;
+            } else {
+                printf("Project dir %s was not created: ".colorize("FAILED", "FAILURE")."\n", $pathDir);
+            }
+        }
+    }
+
+    return REPORTS_PATH;
 }
 
 function getStartTasksDate() {
