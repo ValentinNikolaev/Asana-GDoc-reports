@@ -215,6 +215,17 @@ function generateXlsReports($data, $fileName) {
     $tableCells = [];
     $dateReport = date('m/d/Y');
 
+    $styleArray = array(
+        'borders' => array(
+            'allborders' => array(
+                'style' => PHPExcel_Style_Border::BORDER_THIN
+            )
+        ),
+        'alignment' => array(
+            'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+        ),
+    );
+
     /** try to find meta tags */
     for ($row = 1; $row <= $highestRow; $row++) {
         foreach ($alphas as $column) {
@@ -233,22 +244,35 @@ function generateXlsReports($data, $fileName) {
                 case '<task_type>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'tags';
+                    $tableCells[] = [
+                        'key' => 'tags',
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                    ];
+
                     break;
                 case '<task_completed>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'completed';
+                    $tableCells[] = [
+                        'key' => 'completed',
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                    ];
                     break;
                 case '<notes>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'notes';
+                    $tableCells[] = [
+                        'key' => 'notes',
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                    ];
                     break;
                 case '<link>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'link';
+                    $tableCells[] = [
+                        'key' => 'link',
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                    ];
                     break;
             }
         }
@@ -264,10 +288,11 @@ function generateXlsReports($data, $fileName) {
         foreach ($data['tasks'] as $key => $task) {
             $tableStartCellColumnLoop = $tableStartCellColumn;
 
-            foreach($tableCells as $tplCell) {
+            foreach($tableCells as $cell) {
                 $tableCellAddress = $tableStartCellColumnLoop.$tableStartCellRowLoop;
                 $value = '';
                 $url = false;
+                $tplCell = $cell['key'];
                 if (isset($task[$tplCell])) {
                     if (is_array($task[$tplCell])) {
                         if (isset($task[$tplCell]['title']))
@@ -280,6 +305,10 @@ function generateXlsReports($data, $fileName) {
 
                 }
                 $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress , $value);
+                if (isset($cell['style']))
+                    $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
+                $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
+                $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
                 if ($url)
                     $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
                 $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
@@ -309,7 +338,8 @@ function createProjectReportDir($projectName ='') {
             } else {
                 printf("Project dir %s was not created: ".colorize("FAILED", "FAILURE")."\n", $pathDir);
             }
-        }
+        } else
+            return $pathDir;
     }
 
     return REPORTS_PATH;
@@ -318,7 +348,7 @@ function createProjectReportDir($projectName ='') {
 function getStartTasksDate() {
     $weekDay = date("w");
     if ($weekDay < 7 && $weekDay > 1) {
-        $previous = "-1";
+        $previous = "-2";
     } elseif ($weekDay == 7) {
         $previous = "-2";
     } else {
@@ -419,7 +449,7 @@ function getAsanaTasks($startTasksDate = 'now') {
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks, project '.$project->name.'], response code: ' . $asana->responseCode."\n");
+                printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get tasks, project "'.$project->name.'"], response code: ' . $asana->responseCode."\n");
                 unset($returnData[$project->id]);
                 continue;
             }
@@ -431,7 +461,7 @@ function getAsanaTasks($startTasksDate = 'now') {
 
                 $taskJson = json_decode($taskFullInfo);
                 if ($asana->responseCode != '200' || is_null($tasks)) {
-                    printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get task Info. Project '.$project->name.'. Task '.$task->name.'], response code: ' . $asana->responseCode."\n");
+                    printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get task Info. Project "'.$project->name.'". Task "'.$task->name.'"], response code: ' . $asana->responseCode."\n");
                     unset($returnData[$project->id]);
                     continue;
                 }
@@ -538,17 +568,20 @@ if ($templates) {
             printf("Processing Report template %s \n", $template);
             foreach ($tasks['data'] as $taskData) {
 //                var_dump($taskData);die;
-                $fileReport = generateXlsReports($taskData, $template);
-                if (file_exists($fileReport)) {
-                    printf("Uploading report '".basename($fileReport)."' to google drive....\n");
-                    insertFile($service, basename($fileReport), '', null, SHEET_INDEX, $fileReport);
+                if (isset($taskData['project'])) {
+                    $fileReport = generateXlsReports($taskData, $template);
+                    if (file_exists($fileReport)) {
+                        printf("Uploading report '".basename($fileReport)."' to google drive....\n");
+                        insertFile($service, basename($fileReport), '', null, SHEET_INDEX, $fileReport);
+                    }
                 }
+
             }
         }
     }
 
 
 } else {
-    printf("Nothing to do here");
+    printf("Nothing to do here \n");
 }
 
