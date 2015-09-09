@@ -348,7 +348,7 @@ function createProjectReportDir($projectName ='') {
 function getStartTasksDate() {
     $weekDay = date("w");
     if ($weekDay < 7 && $weekDay > 1) {
-        $previous = "-2";
+        $previous = "-1";
     } elseif ($weekDay == 7) {
         $previous = "-2";
     } else {
