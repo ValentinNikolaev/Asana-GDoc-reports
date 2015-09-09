@@ -3,7 +3,6 @@
 require __DIR__. '/config.php';
 require __DIR__ . '/asana.php';
 
-
 /**
  * set debug level
  */
@@ -24,9 +23,10 @@ if ($weekDay < 7 && $weekDay > 1) {
 }
 
 
-$datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')));
+$datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')), new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
+$datetime->setTimezone( new DateTimeZone(DATETIME_TIMEZONE_ASANA) );
 $startTasksDate = $datetime->format('Y-m-d\TH:i:s\Z');
-echo 'Start from:'.$startTasksDate."<br>";
+echo 'Start from:'.$startTasksDate." [".DATETIME_TIMEZONE_ASANA."]<br>";
 
 
 /**

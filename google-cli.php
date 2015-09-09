@@ -2,7 +2,7 @@
 
 require __DIR__. '/vendor/autoload.php';
 require __DIR__. '/config.php';
-require __DIR__ . '/asana.php';
+//require __DIR__ . '/asana.php';
 
 
 define('SCOPES', implode(' ', array(
@@ -307,7 +307,8 @@ function getStartTasksDate() {
     }
 
 
-    $datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')));
+    $datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')), new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
+    $datetime->setTimezone( new DateTimeZone(DATETIME_TIMEZONE_ASANA) );
     return $datetime->format('Y-m-d\TH:i:s\Z');
 
 }
@@ -489,7 +490,7 @@ printf("Templates download: ".colorize(count($templates), "NOTE")."\n");
 if ($templates) {
     $startTasksDate = getStartTasksDate();
     printf("Processing Asana tasks....\n");
-    printf("Start from: ".colorize($startTasksDate, "WARNING")."\n");
+    printf("Start from: ".colorize($startTasksDate."[".DATETIME_TIMEZONE_ASANA."]", "WARNING")."\n");
     $tasks = getAsanaTasks($startTasksDate);
     if (!is_array($tasks))
         printf("Something goes wrong during Asana request"."\n");
