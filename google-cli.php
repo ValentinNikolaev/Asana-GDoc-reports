@@ -213,7 +213,7 @@ function generateXlsReports($data, $fileName) {
 
     $tableStartCell = '';
     $tableCells = [];
-    $dateReport = date('d.m.Y');
+    $dateReport = date('m/d/Y');
 
     /** try to find meta tags */
     for ($row = 1; $row <= $highestRow; $row++) {
@@ -233,12 +233,12 @@ function generateXlsReports($data, $fileName) {
                 case '<task_type>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'task_type';
+                    $tableCells[] = 'tags';
                     break;
                 case '<task_completed>':
                     if (!$tableStartCell)
                         $tableStartCell = $cellAddress;
-                    $tableCells[] = 'task_completed';
+                    $tableCells[] = 'completed';
                     break;
                 case '<notes>':
                     if (!$tableStartCell)
@@ -289,7 +289,7 @@ function generateXlsReports($data, $fileName) {
         }
     }
 
-    $fileReport = REPORTS_PATH. $data['project']->name." ".$dateReport.".xls";
+    $fileReport = REPORTS_PATH. $data['project']->name." ".date('m_d_Y').".xls";
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileReport);
     return $fileReport;
@@ -406,20 +406,41 @@ function getAsanaTasks($startTasksDate = 'now') {
             }
             $tasks = array();
             foreach ($tasksJson->data as $task) {
+                $taskFullInfo = $asana->getTask($task->id);
 
-                $lastChar = substr(trim($task->name), -1);
-                if ($lastChar != ':')
+//        var_dump($tasks);die;
+
+                $taskJson = json_decode($taskFullInfo);
+                if ($asana->responseCode != '200' || is_null($tasks)) {
+                    printf(colorize("FAILED:", "WARNING").'Error while trying to connect to Asana [get task Info. Project '.$project->name.'. Task '.$task->name.'], response code: ' . $asana->responseCode."\n");
+                    unset($returnData[$project->id]);
+                    continue;
+                }
+
+                $lastChar = substr(trim($taskJson->data->name), -1);
+                if ($lastChar != ':') {
+                    $taskTags = [];
+                    if ($taskJson->data->tags) {
+                        foreach ($taskJson->data->tags as $taskTag) {
+                            $taskTags[] = $taskTag->name;
+                        }
+                    }
+
                     $tasks[] = array(
                         'link' => [
-                            'url' => 'https://app.asana.com/0/'.$project->id.'/'.$task->id,
+                            'url' => 'https://app.asana.com/0/' . $project->id . '/' . $taskJson->data->id,
                             'title' => $task->name
-                            ],
+                        ],
                         'task_type' => '',
-                        'task_completed' => '',
-                        'notes' => '',
+                        'completed' => $taskJson->data->completed ? 'Yes' : 'No',
+                        'notes' => $taskJson->data->notes,
+                        'created_at' => $taskJson->data->created_at,
+                        'modified_at' => $taskJson->data->modified_at,
+                        'tags' => implode(", ", $taskTags),
                     );
-                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
-                        /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
+                }
+//                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
+//                        /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
             }
             if ($tasks) {
                 $returnData[$project->id]['tasks'] = $tasks;
