@@ -364,6 +364,42 @@ function getStartTasksDate() {
 
 }
 
+/**
+ * Insert new file.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @param string $title Title of the file to insert, including the extension.
+ * @param string $description Description of the file to insert.
+ * @param string $parentId Parent folder's ID.
+ * @param string $mimeType MIME type of the file to insert.
+ * @param string $filename Filename of the file to insert.
+ * @return Google_Service_Drive_DriveFile The file that was inserted. NULL is
+ *     returned if an API error occurred.
+ */
+function insertDirectory($service, $title, $parentId = 'root') {
+    $dir = new Google_Service_Drive_DriveFile();
+    $dir->setTitle($title);
+    $dir->setMimeType('application/vnd.google-apps.folder');
+
+    // Set the parent folder.
+    if ($parentId != null) {
+        $parent = new Google_Service_Drive_ParentReference();
+        $parent->setId($parentId);
+        $dir->setParents(array($parent));
+    }
+
+    try {
+        $createdDir = $service->files->insert($dir);
+
+        // Uncomment the following line to print the File ID
+        // print 'File ID: %s' % $createdFile->getId();
+
+        return $createdDir;
+    } catch (Exception $e) {
+        print "An error occurred furing dir creation: " . $e->getMessage();
+    }
+}
+
 
 /**
  * Insert new file.
@@ -520,13 +556,14 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
+print colorize("Getting Files...", "NOTE")."\n";
 $gFiles = retrieveFiles($service);
 
 
 if (count($gFiles) == 0) {
     print "No files found.\n";
 } else {
-    print colorize("Files", "NOTE")."\n";
+
     foreach ($gFiles as $file) {
 
         printf("%s (%s) %s (%s)\n",
@@ -557,11 +594,28 @@ if (count($gFiles) == 0) {
     }
 }
 
+
+
 /**
  * Process reports
  */
 printf("Templates download: ".colorize(count($templates), "NOTE")."\n");
 if ($templates) {
+    /**
+     * working with gDrive folders
+     */
+
+    print colorize("Getting Dirs...", "NOTE")."\n";
+    $gDirs = retrieveFiles($service);
+
+    if (count($gDirs) == 0) {
+        print colorize("No files found.\n", "WARNING")."\n";
+        print "Create GDir '".GDOC_REPORT_DIR_NAME."' \n";
+    }
+
+
+
+
     $startTasksDate = getStartTasksDate();
     printf("Processing Asana tasks....\n");
     printf("Start from: ".colorize($startTasksDate."[".DATETIME_TIMEZONE_ASANA."]", "WARNING")."\n");
