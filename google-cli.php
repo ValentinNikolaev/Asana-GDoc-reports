@@ -10,6 +10,8 @@ define('SCOPES', implode(' ', array(
 ));
 
 
+global $gProjectDir;
+
 $templates = [];
 
 
@@ -566,11 +568,11 @@ if (count($gFiles) == 0) {
 
     foreach ($gFiles as $file) {
 
-        printf("%s (%s) %s (%s)\n",
+        /*printf("%s (%s) %s (%s)\n",
             $file->getTitle(),
             $file->getId(),
             $file->getmimeType()/*,
-            implode(",", $file->getParents())*/,'');
+            implode(",", $file->getParents())*//*,'');*/
 //
 //        var_dump($file);die;
         if ($file->getId()  == DAILY_REPORT_TEMPLATE) {
@@ -599,21 +601,32 @@ if (count($gFiles) == 0) {
 /**
  * Process reports
  */
+$gProjectDir = false;
+
 printf("Templates download: ".colorize(count($templates), "NOTE")."\n");
 if ($templates) {
     /**
      * working with gDrive folders
      */
 
-    print colorize("Getting Dirs...", "NOTE")."\n";
-    $gDirs = retrieveFiles($service);
+    print colorize("Getting GDrive folders...", "NOTE")."\n";
+    $gDirs = retrieveFiles($service, true);
 
     if (count($gDirs) == 0) {
-        print colorize("No files found.\n", "WARNING")."\n";
-        print "Create GDir '".GDOC_REPORT_DIR_NAME."' \n";
+        print colorize("No folders were found.\n", "WARNING")."\n";
+
+    } else {
+        foreach ($gDirs as $dir) {
+            if (!$gProjectDir && $dir->getTitle() == GDOC_REPORT_DIR_NAME) {
+                $gProjectDir = $dir;
+            }
+        }
     }
 
-
+    if (!$gProjectDir) {
+        print "Create GDrive folder '".GDOC_REPORT_DIR_NAME."' \n";
+        $gProjectDir = insertDirectory($service, GDOC_REPORT_DIR_NAME);
+    }
 
 
     $startTasksDate = getStartTasksDate();
@@ -633,7 +646,21 @@ if ($templates) {
                     $fileReport = generateXlsReports($taskData, $template);
                     if (file_exists($fileReport)) {
                         printf("Uploading report '".basename($fileReport)."' to google drive....\n");
-                        insertFile($service, basename($fileReport), '', null, SHEET_INDEX, $fileReport);
+                        $saveDir = $gProjectDir;
+                        $foundProjectGDir = false;
+                        foreach ($gDirs as $dir) {
+                            if (!$foundProjectGDir && $dir->getTitle() == $taskData['project']->name) {
+                                $saveDir = $dir;
+                                $foundProjectGDir = true;
+                            }
+                        }
+
+                        if (!$foundProjectGDir) {
+                            print "Create GDrive folder for project '".$taskData['project']->name."' \n";
+                            $saveDir = insertDirectory($service, $taskData['project']->name, $gProjectDir->getId());
+                        }
+
+                        insertFile($service, basename($fileReport), '', $saveDir->getId(), SHEET_INDEX, $fileReport);
                     }
                 }
 
