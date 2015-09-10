@@ -15,3 +15,5 @@ define('TMP_PATH', __DIR__.'/tmp/');
 define('REPORTS_PATH', __DIR__.'/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
 define('RESPONSE_PERSON', 'Eugene Pyvovarov');
+
+define('GDOC_REPORT_DIR_NAME', 'Reports');
