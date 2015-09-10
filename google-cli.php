@@ -159,13 +159,15 @@ function downloadFile($service, $file)
  * @param Google_Service_Drive $service Drive API service instance.
  * @return Array List of Google_Service_Drive_DriveFile resources.
  */
-function retrieveAllFiles($service) {
+function retrieveFiles($service, $findDirs = false) {
     $result = array();
     $pageToken = NULL;
 
     do {
         try {
-            $parameters = array();
+            $parameters = array(
+                'q' => "mimeType ".($findDirs ? '=' : '!=')."'application/vnd.google-apps.folder'"
+            );
             if ($pageToken) {
                 $parameters['pageToken'] = $pageToken;
             }
@@ -518,15 +520,20 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
-$result = retrieveAllFiles($service);
+$gFiles = retrieveFiles($service);
 
 
-if (count($result) == 0) {
+if (count($gFiles) == 0) {
     print "No files found.\n";
 } else {
     print colorize("Files", "NOTE")."\n";
-    foreach ($result as $file) {
-//        printf("%s (%s)\n", $file->getTitle(), $file->getId());
+    foreach ($gFiles as $file) {
+
+        printf("%s (%s) %s (%s)\n",
+            $file->getTitle(),
+            $file->getId(),
+            $file->getmimeType()/*,
+            implode(",", $file->getParents())*/,'');
 //
 //        var_dump($file);die;
         if ($file->getId()  == DAILY_REPORT_TEMPLATE) {
