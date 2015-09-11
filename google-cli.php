@@ -307,6 +307,8 @@ function generateXlsReports($data, $fileName) {
                         $value = $task[$tplCell];
                     }
 
+                } else {
+                    $value = '';
                 }
                 $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress , $value);
                 if (isset($cell['style']))
@@ -518,8 +520,8 @@ function getAsanaTasks($startTasksDate = 'now') {
                     $tasks[] = array(
                         'link' => 'https://app.asana.com/0/' . $project->id . '/' . $taskJson->data->id,
                         'task_type' => '',
-                        'completed' => $taskJson->data->completed ? 'Yes' : 'No',
-                        'notes' => $taskJson->data->notes,
+                        'completed' => $taskJson->data->title,
+                        'notes' => '',
                         'created_at' => $taskJson->data->created_at,
                         'modified_at' => $taskJson->data->modified_at,
                         'tags' => implode(", ", $taskTags),
