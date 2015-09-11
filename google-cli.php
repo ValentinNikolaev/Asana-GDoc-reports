@@ -183,7 +183,7 @@ function retrieveFiles($service, $findDirs = false)
     do {
         try {
             $parameters = array(
-                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'application/vnd.google-apps.folder'"
+                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'application/vnd.google-apps.folder' and trashed = false"
             );
             if ($pageToken) {
                 $parameters['pageToken'] = $pageToken;
@@ -589,7 +589,6 @@ $service = new Google_Service_Drive($client);
 // Print the names and IDs for up to 10 files.
 print colorize("Getting Files...", "NOTE") . "\n";
 $gFiles = retrieveFiles($service);
-
 
 if (count($gFiles) == 0) {
     print "No files found.\n";
