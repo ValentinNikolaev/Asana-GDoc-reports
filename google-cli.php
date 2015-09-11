@@ -516,11 +516,10 @@ function getAsanaTasks($startTasksDate = 'now') {
                             $taskTags[] = $taskTag->name;
                         }
                     }
-
                     $tasks[] = array(
                         'link' => 'https://app.asana.com/0/' . $project->id . '/' . $taskJson->data->id,
                         'task_type' => '',
-                        'completed' => $taskJson->data->title,
+                        'completed' => $taskJson->data->name,
                         'notes' => '',
                         'created_at' => $taskJson->data->created_at,
                         'modified_at' => $taskJson->data->modified_at,
