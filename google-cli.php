@@ -181,7 +181,7 @@ function retrieveFiles($service, $findDirs = false)
     do {
         try {
             $parameters = array(
-                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'application/vnd.google-apps.folder' and trashed = false"
+                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'".GDOC_FOLDER_MIME."' and trashed = false"
             );
             if ($pageToken) {
                 $parameters['pageToken'] = $pageToken;

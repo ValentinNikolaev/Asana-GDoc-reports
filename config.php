@@ -13,6 +13,7 @@ define('DATETIME_TIMEZONE_ASANA', 'HST');
 
 define('DAILY_REPORT_TEMPLATE', '17mpulibwqYKlWLmBZx_sM6_nEHWfprrsgVCTNSQ6Gfk');
 define('SHEET_INDEX', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+define('GDOC_FOLDER_MIME', 'application/vnd.google-apps.folder');
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
