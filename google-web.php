@@ -55,19 +55,32 @@ require __DIR__ . '/config.php';
          * Load Drive API client library.
          */
         function loadDriveApi() {
-            gapi.client.load('drive', 'v2', listFiles);
+            gapi.client.load('drive', 'v2', afterLoadDriveApi);
+
         }
+
+        function afterLoadDriveApi() {
+            listFiles();
+//            listFiles({'id' : 123, 'title' : 'asd'});
+
+        }
+
+
 
         /**
          * Print files.
          */
         function listFiles() {
+
+            var query= 'title contains "<?=date(DATE_FORMAT_FNAME);?>"' +
+                ' and trashed = false and mimeType="<?=GDOC_SHEET_MIME_GET;?>" and ' +
+                'properties has { key="isAsanaGDocReport" and value="true" and visibility="PUBLIC"}';
             var request = gapi.client.drive.files.list({
-                'q': '(title = "<?=GDOC_REPORT_DIR_NAME;?>" or title contains "<?=/*date(DATE_FORMAT_FNAME);*/"09_12_2015"?>")' +
-                ' and trashed = false and (mimeType="<?=GDOC_SHEET_MIME_GET;?>" or mimeType="<?=GDOC_FOLDER_MIME;?>")'
+                'q': query
 //                'maxResults': 10
             });
 
+            console.log(query);
             request.execute(function(resp) {
                 appendPre('Files:');
                 var files = resp.items;
