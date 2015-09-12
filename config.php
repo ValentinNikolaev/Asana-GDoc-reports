@@ -22,3 +22,5 @@ define('CLIENT_SECRET_PATH', 'client_secret.json');
 define('RESPONSE_PERSON', 'Eugene Pyvovarov');
 
 define('GDOC_REPORT_DIR_NAME', 'Reports');
+
+define("DATE_FORMAT_FNAME", "m_d_Y");

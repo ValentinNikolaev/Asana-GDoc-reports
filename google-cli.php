@@ -340,7 +340,7 @@ function generateXlsReports($data, $fileName)
     }
 
     $folder = createProjectReportDir($data['project']->name);
-    $fileName = $data['project']->name . " " . date('m_d_Y') . ".xls";
+    $fileName = $data['project']->name . " " . date(DATE_FORMAT_FNAME) . ".xls";
     $fileReport = $folder . $fileName;
     printf("Save report to %s ... \n", $fileReport);
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
