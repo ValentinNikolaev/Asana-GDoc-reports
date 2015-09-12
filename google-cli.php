@@ -145,8 +145,8 @@ function colorize($text, $status)
 function downloadFile($service, $file)
 {
     $exportLinks = $file->getExportLinks();
-    if (array_key_exists(SHEET_INDEX, $exportLinks)) {
-        $downloadUrl = $exportLinks[SHEET_INDEX];
+    if (array_key_exists(GDOC_SHEET_MIME, $exportLinks)) {
+        $downloadUrl = $exportLinks[GDOC_SHEET_MIME];
     } else {
         printf("No export link for a sheet: " . colorize("No export link for a file.", "FAILURE") . "\n");
         return null;
@@ -685,7 +685,7 @@ if ($templates) {
                             $saveDir = insertDirectory($service, $taskData['project']->name, $gProjectDir->getId());
                         }
 
-                        insertFile($service, basename($fileReport), '', $saveDir->getId(), SHEET_INDEX, $fileReport);
+                        insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport);
                     }
                 }
 
