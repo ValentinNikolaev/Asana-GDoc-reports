@@ -441,6 +441,14 @@ function insertFile($service, $title, $description, $parentId, $mimeType, $filen
     $file->setTitle($title);
     $file->setDescription($description);
     $file->setMimeType($mimeType);
+    $file->setProperties([
+        [
+            'key'=> 'isAsanaGDocReport',
+            'value' => true,
+            'visibility' => 'PUBLIC',
+
+        ]
+    ]);
 
     // Set the parent folder.
     if ($parentId != null) {
