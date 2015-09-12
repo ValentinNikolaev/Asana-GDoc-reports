@@ -5,9 +5,7 @@ require __DIR__ . '/config.php';
 //require __DIR__ . '/asana.php';
 
 
-define('SCOPES', implode(' ', array(
-        Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA, Google_Service_Drive::DRIVE_FILE, Google_Service_Drive::DRIVE_METADATA)
-));
+;
 
 
 global $gProjectDir;
