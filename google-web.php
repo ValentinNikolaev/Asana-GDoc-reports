@@ -63,8 +63,8 @@ require __DIR__ . '/config.php';
          */
         function listFiles() {
             var request = gapi.client.drive.files.list({
-                'q': '(title = "<?=GDOC_REPORT_DIR_NAME;?>" or title contains "<?=date(DATE_FORMAT_FNAME);?>")' +
-                ' and trashed = false and (mimeType="<?=GDOC_SHEET_MIME;?>" or mimeType="<?=GDOC_FOLDER_MIME;?>")'
+                'q': '(title = "<?=GDOC_REPORT_DIR_NAME;?>" or title contains "<?=/*date(DATE_FORMAT_FNAME);*/"09_12_2015"?>")' +
+                ' and trashed = false and (mimeType="<?=GDOC_SHEET_MIME_GET;?>" or mimeType="<?=GDOC_FOLDER_MIME;?>")'
 //                'maxResults': 10
             });
 
@@ -72,6 +72,7 @@ require __DIR__ . '/config.php';
                 appendPre('Files:');
                 var files = resp.items;
                 if (files && files.length > 0) {
+                    console.log(files);
                     for (var i = 0; i < files.length; i++) {
                         var file = files[i];
                         appendPre(file.title + ' (' + file.id + ')');
