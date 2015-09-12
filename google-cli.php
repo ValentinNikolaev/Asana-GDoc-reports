@@ -444,7 +444,7 @@ function insertFile($service, $title, $description, $parentId, $mimeType, $filen
     $file->setProperties([
         [
             'key'=> 'isAsanaGDocReport',
-            'value' => true,
+            'value' => 'true',
             'visibility' => 'PUBLIC',
 
         ]
