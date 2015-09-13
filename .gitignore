@@ -1,7 +1,5 @@
 .idea
 /vendor/*
-/tmp/*
-/reports/*
 /composer.phar
 composer.lock
 client_secret.json
