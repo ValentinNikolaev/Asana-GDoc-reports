@@ -4,12 +4,13 @@ require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config.php';
 //require __DIR__ . '/asana.php';
 
-
-;
-
-
 global $gProjectDir;
 global $humanTags;
+global $credentialsPath;
+global $client;
+
+// Load previously authorized credentials from a file.
+$credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $humanTags = [
     'dev' => 'backend development',
@@ -33,27 +34,14 @@ $templates = [];
  */
 function getClient()
 {
+    global $credentialsPath, $client;
     $client = new Google_Client();
     $client->setApplicationName(APPLICATION_NAME);
     $client->setScopes(SCOPES);
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
 
-    // Load previously authorized credentials from a file.
-    $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
-    if (!file_exists(TMP_PATH)) {
-        if (mkdir(TMP_PATH, 0700, true))
-            printf("Create tmp dir: " . colorize("SUCCESS", "SUCCESS") . "\n", TMP_PATH);
-        else
-            printf("Create tmp dir: " . colorize("FAILED", "FAILURE") . "\n", TMP_PATH);
-    }
 
-    if (!file_exists(REPORTS_PATH)) {
-        if (mkdir(REPORTS_PATH, 0700, true))
-            printf("Create report dir: " . colorize("SUCCESS", "SUCCESS") . "\n", REPORTS_PATH);
-        else
-            printf("Create report dir: " . colorize("FAILED", "FAILURE") . "\n", REPORTS_PATH);
-    }
 
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
@@ -68,28 +56,29 @@ function getClient()
         // Exchange authorization code for an access token.
         $accessToken = $client->authenticate($authCode);
 
-        // Store the credentials to disk.
-        if (!file_exists(dirname($credentialsPath))) {
-            mkdir(dirname($credentialsPath), 0700, true);
-        }
-
-
         if (file_put_contents($credentialsPath, $accessToken)) {
             printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "\n", $credentialsPath);
         } else {
             printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "\n", $credentialsPath);
             die;
         }
-
     }
+
     $client->setAccessToken($accessToken);
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
-        $client->refreshToken($client->getRefreshToken());
-        file_put_contents($credentialsPath, $client->getAccessToken());
+        $client = refreshToken($client);
     }
     return $client;
+}
+
+function refreshToken($client) {
+    global $credentialsPath;
+    $client->refreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, $client->getAccessToken());
+    return $client;
+
 }
 
 /**
@@ -191,11 +180,23 @@ function retrieveFiles($service, $findDirs = false)
             $result = array_merge($result, $files->getItems());
             $pageToken = $files->getNextPageToken();
         } catch (Exception $e) {
-            print "An error occurred: " . $e->getMessage();
+            catchGoogleExceptions($e);
             $pageToken = NULL;
         }
     } while ($pageToken);
     return $result;
+}
+
+function catchGoogleExceptions($e) {
+    global $credentialsPath, $client;
+    print "An error occurred: " . $e->getMessage()." \n";
+    switch ($e->getCode()) {
+        case '401':
+            refreshToken($client);
+            print "Token refreshed. Restart app \n";
+            break;
+    }
+    die;
 }
 
 function xls($fileName)
