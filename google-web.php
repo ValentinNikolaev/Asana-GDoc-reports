@@ -31,6 +31,7 @@ require __DIR__ . '/config.php';
             if (authResult && !authResult.error) {
                 // Hide auth UI, then load client library.
                 authorizeDiv.style.display = 'none';
+                loadGmailApi();
                 loadDriveApi();
             } else {
                 // Show auth UI, allowing the user to initiate authorization by
@@ -57,6 +58,14 @@ require __DIR__ . '/config.php';
         function loadDriveApi() {
             gapi.client.load('drive', 'v2', afterLoadDriveApi);
 
+        }
+
+        /**
+         * Load Gmail API client library. List labels once client library
+         * is loaded.
+         */
+        function loadGmailApi() {
+            gapi.client.load('gmail', 'v1');
         }
 
         function afterLoadDriveApi() {
@@ -88,7 +97,8 @@ require __DIR__ . '/config.php';
                     console.log(files);
                     for (var i = 0; i < files.length; i++) {
                         var file = files[i];
-                        appendPre(file.title + ' (' + file.id + ')');
+                        appendPre(file.title + ' (' + file.id + ') pdf '+ file.exportLinks['application/pdf']);
+                        createDraft('me', 'tierwerwolf@gmail.com', afterDraftCreate);
                     }
                 } else {
                     appendPre('No files found.');
@@ -142,6 +152,29 @@ require __DIR__ . '/config.php';
             }
             var initialRequest = gapi.client.drive.files.list();
             retrievePageOfFiles(initialRequest, []);
+        }
+
+        function createDraft(userId, email, callback) {
+                var message = "To: someguy@example.com\r\nFrom: myself@example.com\r\nSubject: my subject\r\n\r\nBody goes here";
+                var request = gapi.client.gmail.users.drafts.create({
+
+                'userId': userId,
+                    'message': {
+                        'raw': btoa(message)
+                    }
+//                'draft': {
+//                    'raw': btoa(message),
+//                    'message': {
+//                        'raw': btoa(message)
+//                    }
+//                }
+            });
+
+            request.execute(callback);
+        }
+
+        function afterDraftCreate(response) {
+            console.log(response);
         }
 
         /**
