@@ -7,3 +7,5 @@ Run from Cli
 3. Run step 1 from here https://developers.google.com/drive/web/quickstart/php
 4. Copy client_secret.json to a root
 5. Run php google-cli.php
+
+To get latest report list, run google-web.php
