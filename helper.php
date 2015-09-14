@@ -42,3 +42,20 @@ function colorizeCli($text, $status)
     }
     return chr(27) . "$out" . "$text" . chr(27) . "[0m";
 }
+
+function getStartTasksDate()
+{
+    $weekDay = date("w");
+    if ($weekDay < 7 && $weekDay > 1) {
+        $previous = "-1";
+    } elseif ($weekDay == 7) {
+        $previous = "-2";
+    } else {
+        $previous = "-3";
+    }
+
+    $datetime = new DateTime(date('Y-m-d ' . TIME_CHECK_FROM, strtotime($previous . ' day')), new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
+    $datetime->setTimezone(new DateTimeZone(DATETIME_TIMEZONE_ASANA));
+    return $datetime->format('Y-m-d\TH:i:s\Z');
+
+}
