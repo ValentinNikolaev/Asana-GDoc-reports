@@ -175,13 +175,10 @@ if (count($gFiles) == 0) {
             continue;
         }
 
-        $meta = json_encode([
-            'to' => getClientNameByProjectId(getPropertyByKey($file, 'asanaProjectId')),
-            'subject' => EMAIL_REPORT_SUBJECT
-        ]);
 
         echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '<br>';
-        echo '<input type="hidden" name="' . $downloadUrl . '" value = "'.json_encode($meta).'">';
+        echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByProjectId(getPropertyByKey($file, 'asanaProjectId'))).'">';
+        echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "'.EMAIL_REPORT_SUBJECT.'">';
 //        printf("%s (%s) %s\n",
 //            $file->getTitle(),
 //            $file->getId(),
@@ -200,14 +197,13 @@ if (isset($_POST['report'])) {
         $subject = EMAIL_REPORT_SUBJECT;
         $msg = EMAIL_REPORT_BODY."\n";
 
-        if (isset($_POST[$reportUrl])) {
-            $meta = json_decode($_POST[$reportUrl]);
-            if (isset($meta['to']))
-                $to = $meta['to'];
-            if (isset($meta['subject']))
-                $subject = $meta['subject'];
-        }
+        if (isset($_POST['to:'.base64_encode($reportUrl)]))
+                $to = $_POST['to:'.base64_encode($reportUrl)];
+        if (isset($_POST['subject:'.base64_encode($reportUrl)]))
+            $subject = $_POST['subject:'.base64_encode($reportUrl)];
+
         $mail = "To: $to\nSubject: $subject\n";
+
 
         $message = new Google_Service_Gmail_Message();
 
