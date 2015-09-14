@@ -144,3 +144,8 @@ function colorize($text, $status)
 
 $client = getClient();
 $service = new Google_Service_Drive($client);
+
+
+// Print the names and IDs for up to 10 files.
+print colorize("Getting Files...", "NOTE") . "\n";
+$gFiles = retrieveReportFiles($service);
