@@ -150,3 +150,15 @@ $service = new Google_Service_Drive($client);
 // Print the names and IDs for up to 10 files.
 print colorize("Getting Files...", "NOTE") . "\n";
 $gFiles = retrieveReportFiles($service);
+
+if (count($gFiles) == 0) {
+    print "No files found.\n";
+} else {
+
+    foreach ($gFiles as $file) {
+        printf("%s (%s) %s\n",
+            $file->getTitle(),
+            $file->getId(),
+            $file->getmimeType());
+    }
+}
