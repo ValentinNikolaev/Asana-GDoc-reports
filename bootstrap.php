@@ -7,6 +7,7 @@ global $gProjectDir;
 global $humanTags;
 global $credentialsPath;
 global $client;
+global $clientsProjects;
 
 if (DEBUG) {
     ini_set('display_errors', 1);
