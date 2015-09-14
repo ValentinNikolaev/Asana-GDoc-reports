@@ -608,6 +608,11 @@ if ($templates) {
                                 'visibility' => 'PUBLIC',
 
                             ],
+                            [
+                                'key' => 'asanaProjectId',
+                                'value' => $taskData['project']->id,
+                                'visibility' => 'PUBLIC',
+                            ]
                         ];
                         insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
