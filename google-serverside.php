@@ -154,11 +154,26 @@ $gFiles = retrieveReportFiles($service);
 if (count($gFiles) == 0) {
     print "No files found.\n";
 } else {
-
+    echo '<form method="post">';
     foreach ($gFiles as $file) {
-        printf("%s (%s) %s\n",
-            $file->getTitle(),
-            $file->getId(),
-            $file->getmimeType());
+        $exportLinks = $file->getExportLinks();
+        if (array_key_exists(GDOC_PDF_MIME, $exportLinks)) {
+            $downloadUrl = $exportLinks[GDOC_PDF_MIME];
+        } else {
+            printf("Skip $file->getName() as not export to ".GDOC_PDF_MIME);
+            continue;
+        }
+        echo '<input type="checkbox" name="report[]" value="'.$downloadUrl.'">'.$file->getTitle().'<br>';
+//        printf("%s (%s) %s\n",
+//            $file->getTitle(),
+//            $file->getId(),
+//            $file->getmimeType());
+    }
+    echo "<input type='submit' name='Convert and send'></form>";
+}
+
+if (isset($_POST['report'])) {
+    foreach ($_POST['report'] as $reportUrl) {
+
     }
 }
