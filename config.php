@@ -19,6 +19,48 @@ $humanTags = [
     'qa' => 'testing',
 ];
 
+$clientsProjects = [
+    'Chris Davis' => [
+        'projects' => [
+            [
+                'send_to' => [
+                    'chris.davis@getnetset.com'
+                ],
+                'name' => 'Customized3',
+                'link' => 'https://app.asana.com/0/29736859250886/list',
+                'id' => '29736859250886',
+                'type' => 'asana',
+            ]
+        ]
+    ],
+    'Christopher Sleat' => [
+        'projects' => [
+            [
+                'send_to' => [
+                    'csleat@cwist.com'
+                ],
+                'name' => 'CWIST',
+                'link' => 'https://app.asana.com/0/17628567771163/list',
+                'id' => '17628567771163',
+                'type' => 'asana',
+            ]
+        ]
+    ],
+    'Ed Holloway' => [
+        'projects' => [
+            [
+                'send_to' => [
+                    'ed@edholloway.com'
+                ],
+                'name' => 'School Collector',
+                'link' => 'https://app.asana.com/0/41954123350759/list',
+                'id' => '41954123350759',
+                'type' => 'asana',
+            ]
+        ]
+    ],
+];
+
 
 define('GAPI_SCOPES', implode(' ', $scopes));
 define('DEBUG', 1);
