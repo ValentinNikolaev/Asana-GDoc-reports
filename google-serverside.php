@@ -5,6 +5,11 @@ error_reporting(-1);
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config.php';
 
+global $client, $credentialsPath;
+
+    // Load previously authorized credentials from a file.
+       $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
+
 /**
  * Expands the home directory alias '~' to the full path.
  * @param string $path the path to expand.
@@ -30,8 +35,7 @@ function getClient()
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
 
-    // Load previously authorized credentials from a file.
-    $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
+
 
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
@@ -79,6 +83,18 @@ function refreshToken($client) {
     return $client;
 }
 
+
+function catchGoogleExceptions($e) {
+    global $credentialsPath, $client;
+    print "An error occurred: " . $e->getMessage()." \n";
+    switch ($e->getCode()) {
+        case '401':
+            refreshToken($client);
+            print "Token refreshed. Restart app \n";
+            break;
+    }
+    die;
+}
 /**
  * Colorize Console text
  * @param $text
