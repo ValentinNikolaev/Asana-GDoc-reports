@@ -25,6 +25,8 @@ $humanTags = [
 
 define('NOT_DEFINED_CLIENT_FOLDER', 'Not defined client');
 define('EMAIL_REPORT_SUBJECT', 'Report');
+define('EMAIL_REPORT_TO', '');
+define('EMAIL_REPORT_BODY', '');
 
 $clientsProjects = [
     [
