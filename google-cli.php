@@ -313,7 +313,7 @@ function createProjectReportDir($projectName = '')
  * @return Google_Service_Drive_DriveFile The file that was inserted. NULL is
  *     returned if an API error occurred.
  */
-function insertDirectory($service, $title, $parentId = 'root')
+function inserFolder($service, $title, $parentId = 'root')
 {
     $dir = new Google_Service_Drive_DriveFile();
     $dir->setTitle($title);
@@ -574,7 +574,7 @@ if ($templates) {
 
     if (!$gProjectDir) {
         print "Create GDrive folder '" . GDOC_REPORT_DIR_NAME . "' \n";
-        $gProjectDir = insertDirectory($service, GDOC_REPORT_DIR_NAME);
+        $gProjectDir = inserFolder($service, GDOC_REPORT_DIR_NAME);
     }
 
 
@@ -606,7 +606,7 @@ if ($templates) {
 
                         if (!$foundProjectGDir) {
                             print "Create GDrive folder for project '" . $taskData['project']->name . "' \n";
-                            $saveDir = insertDirectory($service, $taskData['project']->name, $gProjectDir->getId());
+                            $saveDir = inserFolder($service, $taskData['project']->name, $gProjectDir->getId());
                         }
 
                         insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport);
