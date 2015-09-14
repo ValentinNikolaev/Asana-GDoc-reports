@@ -68,9 +68,6 @@ function refreshToken($client) {
 
 }
 
-
-
-
 /**
  * Download a file's content.
  *
@@ -144,19 +141,6 @@ function catchGoogleExceptions($e) {
             break;
     }
     die;
-}
-
-function xls($fileName)
-{
-    $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-    $objPHPExcel = $objReader->load($fileName);// Change the file
-    $objPHPExcel->setActiveSheetIndex(0)
-        ->setCellValue('A1', 'Hello')
-        ->setCellValue('B1', 'World!');
-
-// Write the file
-    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-    $objWriter->save($fileName . "-changed");
 }
 
 function generateXlsReports($data, $fileName)
