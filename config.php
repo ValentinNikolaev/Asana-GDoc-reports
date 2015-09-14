@@ -1,8 +1,24 @@
 <?php
+
 $scopes = array(
     Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA, Google_Service_Drive::DRIVE_FILE, Google_Service_Drive::DRIVE_METADATA,
     Google_Service_Gmail::GMAIL_INSERT, Google_Service_Gmail::GMAIL_MODIFY, Google_Service_Gmail::MAIL_GOOGLE_COM)
 ;
+
+$humanTags = [
+    'dev' => 'backend development',
+    'bugs' => 'bug fixing ',
+    'css' => 'slicing the pages',
+    'frontend' => 'frontend work(javascript)',
+    'research' => 'investigation, research',
+    'docs' => 'documenting',
+    'chats' => 'getting in touch with 3rd party',
+    'server' => 'server setup',
+    'deploy' => 'deployment',
+    'unittests' => 'writing tests',
+    'qa' => 'testing',
+];
+
 
 define('GAPI_SCOPES', implode(' ', $scopes));
 define('DEBUG', 1);

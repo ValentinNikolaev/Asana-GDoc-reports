@@ -12,19 +12,6 @@ global $client;
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
-$humanTags = [
-    'dev' => 'backend development',
-    'bugs' => 'bug fixing ',
-    'css' => 'slicing the pages',
-    'frontend' => 'frontend work(javascript)',
-    'research' => 'investigation, research',
-    'docs' => 'documenting',
-    'chats' => 'getting in touch with 3rd party',
-    'server' => 'server setup',
-    'deploy' => 'deployment',
-    'unittests' => 'writing tests',
-    'qa' => 'testing',
-];
 $templates = [];
 
 
