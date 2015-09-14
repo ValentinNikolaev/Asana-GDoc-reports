@@ -1,14 +1,14 @@
 <?php
-ini_set('display_errors',1);
-ini_set('display_startup_errors',1);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(-1);
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config.php';
 
 global $client, $credentialsPath;
 
-    // Load previously authorized credentials from a file.
-       $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
+// Load previously authorized credentials from a file.
+$credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
 
 /**
  * Expands the home directory alias '~' to the full path.
@@ -23,6 +23,7 @@ function expandHomeDirectory($path)
     }
     return str_replace('~', realpath($homeDirectory), $path);
 }
+
 /**
  * Returns an authorized API client.
  * @return Google_Client the authorized client object
@@ -35,7 +36,6 @@ function getClient()
     $client->setScopes(SCOPES);
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
-
 
 
     if (file_exists($credentialsPath)) {
@@ -71,13 +71,14 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
-        $client= refreshToken($client);
+        $client = refreshToken($client);
     }
 
     return $client;
 }
 
-function refreshToken($client) {
+function refreshToken($client)
+{
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
     file_put_contents($credentialsPath, $client->getAccessToken());
@@ -85,9 +86,10 @@ function refreshToken($client) {
 }
 
 
-function catchGoogleExceptions($e) {
+function catchGoogleExceptions($e)
+{
     global $credentialsPath, $client;
-    print "An error occurred: " . $e->getMessage()." \n";
+    print "An error occurred: " . $e->getMessage() . " \n";
     switch ($e->getCode()) {
         case '401':
             refreshToken($client);
@@ -112,8 +114,8 @@ function retrieveReportFiles($service)
     do {
         try {
             $parameters = array(
-                'q' => 'title contains "'.date(DATE_FORMAT_FNAME).'"
-                 and trashed = false and mimeType="'.GDOC_SHEET_MIME_GET.'" and
+                'q' => 'title contains "' . date(DATE_FORMAT_FNAME) . '"
+                 and trashed = false and mimeType="' . GDOC_SHEET_MIME_GET . '" and
                  properties has { key="isAsanaGDocReport" and value="true" and visibility="PUBLIC"}'
             );
             if ($pageToken) {
@@ -152,7 +154,8 @@ function colorize($text, $status)
  * @param  Google_Service_Gmail_Message $message Message of the created Draft.
  * @return Google_Service_Gmail_Draft Created Draft.
  */
-function createDraft($service, $user, $message) {
+function createDraft($service, $user, $message)
+{
     $draft = new Google_Service_Gmail_Draft();
     $draft->setMessage($message);
     try {
@@ -182,10 +185,10 @@ if (count($gFiles) == 0) {
         if (array_key_exists(GDOC_PDF_MIME, $exportLinks)) {
             $downloadUrl = $exportLinks[GDOC_PDF_MIME];
         } else {
-            printf("Skip $file->getName() as not export to ".GDOC_PDF_MIME);
+            printf("Skip $file->getName() as not export to " . GDOC_PDF_MIME);
             continue;
         }
-        echo '<input type="checkbox" name="report[]" value="'.$downloadUrl.'">'.$file->getTitle().'<br>';
+        echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '<br>';
 //        printf("%s (%s) %s\n",
 //            $file->getTitle(),
 //            $file->getId(),
@@ -202,7 +205,7 @@ if (isset($_POST['report'])) {
     foreach ($_POST['report'] as $reportUrl) {
         $mail = "To: some@mail.com\nFrom: myself@example.com\nSubject: my subject\n";
         $msg = "Body goes here\n";
-        $message= new Google_Service_Gmail_Message();
+        $message = new Google_Service_Gmail_Message();
 
 
         $headers = get_headers($reportUrl);
@@ -210,7 +213,7 @@ if (isset($_POST['report'])) {
         if ($headers) {
             $im = file_get_contents($reportUrl);
             if (!$im) {
-                echo 'Skip. Cannot recive file  '.$reportUrl.'<br>';
+                echo 'Skip. Cannot recive file  ' . $reportUrl . '<br>';
                 continue;
             }
             $name = base64_encode($reportUrl);
@@ -221,14 +224,14 @@ if (isset($_POST['report'])) {
             $mail .= "--$name\n";
             foreach ($allowedHeaders as $allowedHeader) {
                 foreach ($headers as $header) {
-                    if (strpos($header,$allowedHeader) !== false) {
-                        $mail .= $header."\n";
+                    if (strpos($header, $allowedHeader) !== false) {
+                        $mail .= $header . "\n";
                     }
                 }
             }
             $mail .= "Content-Transfer-Encoding: base64\n\n";
             $mail .= base64_encode($im);
-            $mail .=  $mail .= "--$name--\n";
+            $mail .= $mail .= "--$name--\n";
 
         } else {
             echo 'Skip. Cannot recive headers <br>';
@@ -249,10 +252,9 @@ if (isset($_POST['report'])) {
         mail += 'Content-Type: text/plain; charset="UTF-8"\n\n';
         mail += message + '\n';*/
         createDraft($gMailService, 'me', $message);
-        echo 'Send message '.$reportUrl.' <br>';
+        echo 'Send message ' . $reportUrl . ' <br>';
     }
 }
-
 
 
 /**
@@ -265,27 +267,29 @@ if (isset($_POST['report'])) {
  * @return The size of the file referenced by $url, or -1 if the size
  * could not be determined.
  */
-function curl_get_file_headers( $url ) {
+function curl_get_file_headers($url)
+{
     // Assume failure.
     $result = -1;
 
-    $curl = curl_init( $url );
+    $curl = curl_init($url);
 
     // Issue a HEAD request and follow any redirects.
-    curl_setopt( $curl, CURLOPT_NOBODY, true );
-    curl_setopt( $curl, CURLOPT_HEADER, true );
-    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+    curl_setopt($curl, CURLOPT_NOBODY, true);
+    curl_setopt($curl, CURLOPT_HEADER, true);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 //    curl_setopt( $curl, CURLOPT_USERAGENT, get_user_agent_string() );
 
-    $data = curl_exec( $curl );
-    curl_close( $curl );
+    $data = curl_exec($curl);
+    curl_close($curl);
 
 
     return $data;
 }
 
 
-function base64url_encode($data) {
+function base64url_encode($data)
+{
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
