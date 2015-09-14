@@ -224,7 +224,7 @@ if (isset($_POST['report'])) {
             }
             $mail .= "Content-Transfer-Encoding: base64\n\n";
             $mail .= base64_encode($im);
-            $mail .= $mail .= "--$name--\n";
+            $mail .= "--$name--\n";
 
         } else {
             echo 'Skiped. Cannot recive headers <br>';
