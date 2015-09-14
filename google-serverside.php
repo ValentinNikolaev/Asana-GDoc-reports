@@ -29,6 +29,7 @@ function expandHomeDirectory($path)
  */
 function getClient()
 {
+    global $credentialsPath;
     $client = new Google_Client();
     $client->setApplicationName(APPLICATION_NAME);
     $client->setScopes(SCOPES);
