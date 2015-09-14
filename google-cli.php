@@ -57,9 +57,9 @@ function getClient()
         $accessToken = $client->authenticate($authCode);
 
         if (file_put_contents($credentialsPath, $accessToken)) {
-            printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "\n", $credentialsPath);
+            printf("Credentials saved to %s: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $credentialsPath);
         } else {
-            printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "\n", $credentialsPath);
+            printf("Credentials saved to %s: " . colorizeCli("FAILED", "FAILURE") . "\n", $credentialsPath);
             die;
         }
     }
@@ -82,34 +82,7 @@ function refreshToken($client) {
 }
 
 
-/**
- * Colorize Console text
- * @param $text
- * @param $status
- * @return string
- * @throws Exception
- */
-function colorize($text, $status)
-{
-    $out = "";
-    switch ($status) {
-        case "SUCCESS":
-            $out = "[42m"; //Green background
-            break;
-        case "FAILURE":
-            $out = "[41m"; //Red background
-            break;
-        case "WARNING":
-            $out = "[43m"; //Yellow background
-            break;
-        case "NOTE":
-            $out = "[44m"; //Blue background
-            break;
-        default:
-            throw new Exception("Invalid status: " . $status);
-    }
-    return chr(27) . "$out" . "$text" . chr(27) . "[0m";
-}
+
 
 /**
  * Download a file's content.
@@ -124,7 +97,7 @@ function downloadFile($service, $file)
     if (array_key_exists(GDOC_SHEET_MIME, $exportLinks)) {
         $downloadUrl = $exportLinks[GDOC_SHEET_MIME];
     } else {
-        printf("No export link for a sheet: " . colorize("No export link for a file.", "FAILURE") . "\n");
+        printf("No export link for a sheet: " . colorizeCli("No export link for a file.", "FAILURE") . "\n");
         return null;
     }
 
@@ -134,11 +107,11 @@ function downloadFile($service, $file)
         if ($httpRequest->getResponseHttpCode() == 200) {
             return $httpRequest->getResponseBody();
         } else {
-            printf("Download File: " . colorize("An error occurred during file request.", "FAILURE") . "\n");
+            printf("Download File: " . colorizeCli("An error occurred during file request.", "FAILURE") . "\n");
             return null;
         }
     } else {
-        printf("Download File: " . colorize("No export link for a file.", "FAILURE") . "\n");
+        printf("Download File: " . colorizeCli("No export link for a file.", "FAILURE") . "\n");
         return null;
     }
 }
@@ -203,7 +176,7 @@ function generateXlsReports($data, $fileName)
 {
     $alphas = range('A', 'Z');
     $highestRowBoard = 50;
-    print colorize("Generate report for project " . $data['project']->name, "NOTE") . "\n";
+    print colorizeCli("Generate report for project " . $data['project']->name, "NOTE") . "\n";
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
     // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -212,7 +185,7 @@ function generateXlsReports($data, $fileName)
     $highestRow = $sheet->getHighestRow();
     $highestColumn = $sheet->getHighestColumn();
     if (!in_array($highestColumn, $alphas)) {
-        printf(colorize("FAILED:", "FAILURE") . 'Too many columns in a template. Highest Column %s \n', $highestColumn);
+        printf(colorizeCli("FAILED:", "FAILURE") . 'Too many columns in a template. Highest Column %s \n', $highestColumn);
         return;
     }
 
@@ -343,10 +316,10 @@ function createProjectReportDir($projectName = '')
         if (!file_exists($pathDir)) {
             printf("Project dir '%s' doesn't exists. Try to create... \n", $pathDir);
             if (mkdir($pathDir, 0777, true)) {
-                printf("Project dir %s created: " . colorize("SUCCESS", "SUCCESS") . "\n", $pathDir);
+                printf("Project dir %s created: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $pathDir);
                 return $pathDir;
             } else {
-                printf("Project dir %s was not created: " . colorize("FAILED", "FAILURE") . "\n", $pathDir);
+                printf("Project dir %s was not created: " . colorizeCli("FAILED", "FAILURE") . "\n", $pathDir);
             }
         } else
             return $pathDir;
@@ -482,7 +455,7 @@ function getAsanaTasks($startTasksDate = 'now')
     $workspaces = $asana->getWorkspaces();
 // As Asana API documentation says, when response is successful, we receive a 200 in response so...
     if ($asana->responseCode != '200' || is_null($workspaces)) {
-        printf(colorize("FAILED:", "FAILURE") . 'Error while trying to connect to Asana, response code: ' . $asana->responseCode . "\n");
+        printf(colorizeCli("FAILED:", "FAILURE") . 'Error while trying to connect to Asana, response code: ' . $asana->responseCode . "\n");
         return;
     }
     $workspacesJson = json_decode($workspaces);
@@ -492,7 +465,7 @@ function getAsanaTasks($startTasksDate = 'now')
         $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
         // As Asana API documentation says, when response is successful, we receive a 200 in response so...
         if ($asana->responseCode != '200' || is_null($projects)) {
-            printf(colorize("FAILED:", "FAILURE") . 'Error while trying to connect to Asana [get project, workspace ' . $workspace->name . '], response code: ' . $asana->responseCode . "\n");
+            printf(colorizeCli("FAILED:", "FAILURE") . 'Error while trying to connect to Asana [get project, workspace ' . $workspace->name . '], response code: ' . $asana->responseCode . "\n");
             continue;
         }
         $projectsJson = json_decode($projects);
@@ -508,7 +481,7 @@ function getAsanaTasks($startTasksDate = 'now')
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorize("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get tasks, project "' . $project->name . '"], response code: ' . $asana->responseCode . "\n");
+                printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get tasks, project "' . $project->name . '"], response code: ' . $asana->responseCode . "\n");
                 unset($returnData[$project->id]);
                 continue;
             }
@@ -520,7 +493,7 @@ function getAsanaTasks($startTasksDate = 'now')
 
                 $taskJson = json_decode($taskFullInfo);
                 if ($asana->responseCode != '200' || is_null($tasks)) {
-                    printf(colorize("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get task Info. Project "' . $project->name . '". Task "' . $task->name . '"], response code: ' . $asana->responseCode . "\n");
+                    printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get task Info. Project "' . $project->name . '". Task "' . $task->name . '"], response code: ' . $asana->responseCode . "\n");
                     unset($returnData[$project->id]);
                     continue;
                 }
@@ -581,7 +554,7 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
-print colorize("Getting Files...", "NOTE") . "\n";
+print colorizeCli("Getting Files...", "NOTE") . "\n";
 $gFiles = retrieveFiles($service);
 
 if (count($gFiles) == 0) {
@@ -603,14 +576,14 @@ if (count($gFiles) == 0) {
             if ($downloadResult) {
                 $fileFs = TMP_PATH . $file->getId() . '.xls';
                 if (file_put_contents($fileFs, $downloadResult)) {
-                    printf("Template saved to %s: " . colorize("SUCCESS", "SUCCESS") . "\n", $fileFs);
+                    printf("Template saved to %s: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $fileFs);
                     $templates[] = ($fileFs);
                 } else {
-                    printf("Template saved to %s: " . colorize("FAILED", "FAILURE") . "\n", $fileFs);
+                    printf("Template saved to %s: " . colorizeCli("FAILED", "FAILURE") . "\n", $fileFs);
 
                 }
             } else {
-                printf("Download result for '%s': " . colorize("FAILED", "FAILURE") . "\n", $file->getTitle());
+                printf("Download result for '%s': " . colorizeCli("FAILED", "FAILURE") . "\n", $file->getTitle());
 
             }
 
@@ -624,17 +597,17 @@ if (count($gFiles) == 0) {
  */
 $gProjectDir = false;
 
-printf("Templates download: " . colorize(count($templates), "NOTE") . "\n");
+printf("Templates download: " . colorizeCli(count($templates), "NOTE") . "\n");
 if ($templates) {
     /**
      * working with gDrive folders
      */
 
-    print colorize("Getting GDrive folders...", "NOTE") . "\n";
+    print colorizeCli("Getting GDrive folders...", "NOTE") . "\n";
     $gDirs = retrieveFiles($service, true);
 
     if (count($gDirs) == 0) {
-        print colorize("No folders were found.\n", "WARNING") . "\n";
+        print colorizeCli("No folders were found.\n", "WARNING") . "\n";
 
     } else {
         foreach ($gDirs as $dir) {
@@ -652,7 +625,7 @@ if ($templates) {
 
     $startTasksDate = getStartTasksDate();
     printf("Processing Asana tasks....\n");
-    printf("Start from: " . colorize($startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]", "WARNING") . "\n");
+    printf("Start from: " . colorizeCli($startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]", "WARNING") . "\n");
     $tasks = getAsanaTasks($startTasksDate);
     if (!is_array($tasks))
         printf("Something goes wrong during Asana request" . "\n");
