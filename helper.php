@@ -82,3 +82,15 @@ function getClientEmailsByProjectId($projectId) {
         }
     }
 }
+
+function getPropertyByKey($file, $key) {
+    $properties = $file->getProperties();
+
+    foreach ($properties as $property) {
+        if ($property->key == $key) {
+            return $property->value;
+        }
+    }
+
+    return null;
+}
