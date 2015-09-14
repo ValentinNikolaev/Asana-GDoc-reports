@@ -5,7 +5,6 @@ $scopes = array(
 ;
 
 define('GAPI_SCOPES', implode(' ', $scopes));
-define('OA2_CLIENT_ID', '121018392116-qij7186nbrngihjdf0e83bp8non1hsod.apps.googleusercontent.com');
 define('DEBUG', 1);
 define('ASANA_API_KEY', '3ivyLe5P.NK19uB8GNejRbxSigjLSW09');
 define('TIME_CHECK_FROM', '18:45');
