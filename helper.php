@@ -59,3 +59,26 @@ function getStartTasksDate()
     return $datetime->format('Y-m-d\TH:i:s\Z');
 
 }
+
+
+function getClientNameByProjectId($projectId) {
+    global $clientsProjects;
+    foreach ($clientsProjects as $clientName => $clientData) {
+        foreach ($clientData['projects'] as $project) {
+            if ($project['id'] == $projectId)
+                return $clientData['name'];
+        }
+    }
+
+    return false;
+}
+
+function getClientEmailsByProjectId($projectId) {
+    global $clientsProjects;
+    foreach ($clientsProjects as $clientName => $clientData) {
+        foreach ($clientData['projects'] as $project) {
+            if ($project['id'] == $projectId)
+                return $project['send_to'];
+        }
+    }
+}
