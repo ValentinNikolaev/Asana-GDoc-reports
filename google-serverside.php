@@ -166,6 +166,7 @@ function createDraft($service, $user, $message) {
 
 $client = getClient();
 $service = new Google_Service_Drive($client);
+$gMailService = new Google_Service_Gmail($client);
 
 
 // Print the names and IDs for up to 10 files.
@@ -195,6 +196,16 @@ if (count($gFiles) == 0) {
 
 if (isset($_POST['report'])) {
     foreach ($_POST['report'] as $reportUrl) {
+        $mail = "To: some@mail.com\r\nFrom: myself@example.com\r\nSubject: my subject\r\n\r\n";
+        $msg = "Body goes here";
+        $message= new Google_Service_Gmail_Message();
+        $message->setRaw(base64url_encode($mail.$msg));
 
+        createDraft($gMailService, 'me', $message);
+        echo 'Send message '.$reportUrl.' <br>';
     }
+}
+
+function base64url_encode($data) {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
