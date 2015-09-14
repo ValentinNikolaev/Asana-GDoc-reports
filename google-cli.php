@@ -351,20 +351,13 @@ function insertFolder($service, $title, $parentId = 'root')
  * @return Google_Service_Drive_DriveFile The file that was inserted. NULL is
  *     returned if an API error occurred.
  */
-function insertFile($service, $title, $description, $parentId, $mimeType, $filename)
+function insertFile($service, $title, $description, $parentId, $mimeType, $filename, $properties = [])
 {
     $file = new Google_Service_Drive_DriveFile();
     $file->setTitle($title);
     $file->setDescription($description);
     $file->setMimeType($mimeType);
-    $file->setProperties([
-        [
-            'key'=> 'isAsanaGDocReport',
-            'value' => 'true',
-            'visibility' => 'PUBLIC',
-
-        ]
-    ]);
+    $file->setProperties($properties);
 
     // Set the parent folder.
     if ($parentId != null) {
@@ -608,8 +601,15 @@ if ($templates) {
                             print "Create GDrive folder for project '" . $taskData['project']->name . "' \n";
                             $saveDir = insertFolder($service, $taskData['project']->name, $gProjectDir->getId());
                         }
+                        $properties = [
+                            [
+                                'key'=> 'isAsanaGDocReport',
+                                'value' => 'true',
+                                'visibility' => 'PUBLIC',
 
-                        insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport);
+                            ],
+                        ];
+                        insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
                 }
 
