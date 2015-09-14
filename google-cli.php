@@ -408,10 +408,11 @@ function removeFileIfExists($service, $title, $folderId) {
         }
     } while ($pageToken);
 
-    foreach ($result as $file) {
-        printf("Deleting exist file %s \n", $file->getName());
-        deleteFile($service, $file->getId());
-    }
+    if ($result)
+        foreach ($result as $file) {
+            printf("Deleting exist file %s \n", $file->title);
+            deleteFile($service, $file->getId());
+        }
 
 }
 
