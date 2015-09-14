@@ -585,16 +585,18 @@ if ($templates) {
                         printf("Uploading report '" . basename($fileReport) . "' to google drive....\n");
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
-                        foreach ($gDirs as $dir) {
-                            if (!$foundProjectGDir && $dir->getTitle() == $taskData['project']->name) {
+                        $reportFolderName = getClientNameByProjectId($taskData['project']->id)." <".$taskData['project']->name.">";
+
+                          foreach ($gDirs as $dir) {
+                            if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
                                 $saveDir = $dir;
                                 $foundProjectGDir = true;
                             }
                         }
 
                         if (!$foundProjectGDir) {
-                            print "Create GDrive folder for project '" . $taskData['project']->name . "' \n";
-                            $saveDir = insertFolder($service, $taskData['project']->name, $gProjectDir->getId());
+                            print "Create GDrive folder for project '" . $reportFolderName . "' \n";
+                            $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
                         }
                         $properties = [
                             [
