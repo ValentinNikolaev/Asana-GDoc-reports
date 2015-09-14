@@ -54,9 +54,10 @@ $clientsProjects = [
             ]
         ]
     ],
-    'Ed Holloway' => [
+    [
         'projects' => [
             [
+                'name' => 'Ed Holloway',
                 'send_to' => [
                     'ed@edholloway.com'
                 ],
