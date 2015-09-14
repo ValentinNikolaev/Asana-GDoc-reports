@@ -267,7 +267,7 @@ function generateXlsReports($data, $fileName)
     }
 
     $folder = createProjectReportDir($data['project']->name);
-    $fileName = $data['project']->name . " " . date(DATE_FORMAT_FNAME) . ".xls";
+    $fileName = getClientNameByProjectId($data['project']->id) . " " . date(DATE_FORMAT_FNAME) . ".xls";
     $fileReport = $folder . $fileName;
     printf("Save report to %s ... \n", $fileReport);
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
