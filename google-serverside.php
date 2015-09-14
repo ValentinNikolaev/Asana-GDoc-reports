@@ -174,7 +174,14 @@ if (count($gFiles) == 0) {
             printf("Skip $file->getName() as not export to " . GDOC_PDF_MIME);
             continue;
         }
+
+        $meta = json_encode([
+            'To' => getClientNameByProjectId(getPropertyByKey($file, 'asanaProjectId')),
+            'Subject' => EMAIL_REPORT_SUBJECT
+        ]);
+
         echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '<br>';
+        echo '<input type="hidden" name="' . $downloadUrl . '" value = "'.json_encode($meta).'">';
 //        printf("%s (%s) %s\n",
 //            $file->getTitle(),
 //            $file->getId(),
@@ -189,7 +196,7 @@ if (isset($_POST['report'])) {
         "Content-Disposition"
     ];
     foreach ($_POST['report'] as $reportUrl) {
-        $mail = "To: some@mail.com\nFrom: myself@example.com\nSubject: my subject\n";
+        $mail = "To: some@mail.com\nSubject: my subject\n";
         $msg = "Body goes here\n";
         $message = new Google_Service_Gmail_Message();
 
