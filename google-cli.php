@@ -329,7 +329,7 @@ function insertFolder($service, $title, $parentId = 'root')
 
         return $createdDir;
     } catch (Exception $e) {
-        print "An error occurred furing dir creation: " . $e->getMessage();
+        catchGoogleExceptions($e);
     }
 }
 
@@ -376,9 +376,61 @@ function insertFile($service, $title, $description, $parentId, $mimeType, $filen
 
         return $createdFile;
     } catch (Exception $e) {
-        print "An error occurred: " . $e->getMessage();
+        catchGoogleExceptions($e);
     }
 }
+
+/**
+ * Print a file's metadata.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @param string $fileId ID of the file to print metadata for.
+ */
+function removeFileIfExists($service, $title, $folderId) {
+    $result = array();
+    $pageToken = NULL;
+
+    do {
+        try {
+            $parameters = array(
+                'q' => "title = '$title' and trashed = false and '$folderId' in parents"
+            );
+            if ($pageToken) {
+                $parameters['pageToken'] = $pageToken;
+            }
+            $files = $service->files->listFiles($parameters);
+
+            $result = array_merge($result, $files->getItems());
+            $pageToken = $files->getNextPageToken();
+        } catch (Exception $e) {
+            catchGoogleExceptions($e);
+            $pageToken = NULL;
+        }
+    } while ($pageToken);
+
+    foreach ($result as $file) {
+        printf("Deleting exist file %s \n", $file->getName());
+        deleteFile($service, $file->getId());
+    }
+
+}
+
+/**
+ * Permanently delete a file, skipping the trash.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @param String $fileId ID of the file to delete.
+ */
+function deleteFile($service, $fileId) {
+    try {
+
+        $service->files->delete($fileId);
+
+    } catch (Exception $e) {
+        catchGoogleExceptions($e);
+    }
+}
+
 
 function getAsanaTasks($startTasksDate = 'now')
 {
@@ -586,7 +638,7 @@ if ($templates) {
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
                         $reportFolderName = getClientNameByProjectId($taskData['project']->id)." <".$taskData['project']->name.">";
-
+                        $fileReportName = basename($fileReport);
                           foreach ($gDirs as $dir) {
                             if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
                                 $saveDir = $dir;
@@ -611,7 +663,8 @@ if ($templates) {
                                 'visibility' => 'PUBLIC',
                             ]
                         ];
-                        insertFile($service, basename($fileReport), '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
+                        removeFileIfExists($service, $fileReportName, $saveDir->getId());
+                        insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
                 }
 
