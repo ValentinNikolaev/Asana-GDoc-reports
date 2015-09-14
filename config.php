@@ -26,7 +26,8 @@ $humanTags = [
 define('NOT_DEFINED_CLIENT_FOLDER', 'Not defined clients');
 
 $clientsProjects = [
-    'Chris Davis' => [
+    [
+        'name' => 'Chris Davis',
         'projects' => [
             [
                 'send_to' => [
@@ -39,7 +40,8 @@ $clientsProjects = [
             ]
         ]
     ],
-    'Christopher Sleat' => [
+    [
+        'name' => 'Christopher Sleat',
         'projects' => [
             [
                 'send_to' => [
