@@ -196,9 +196,9 @@ if (isset($_POST['report'])) {
         "Content-Disposition"
     ];
     foreach ($_POST['report'] as $reportUrl) {
-        $to = '';
-        $subject = '';
-        $msg = "Body goes here\n";
+        $to = EMAIL_REPORT_TO;
+        $subject = EMAIL_REPORT_SUBJECT;
+        $msg = EMAIL_REPORT_BODY."\n";
 
         if (isset($_POST[$reportUrl])) {
             $meta = json_decode($_POST[$reportUrl]);
