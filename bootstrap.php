@@ -1,7 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: valentine
- * Date: 15.09.15
- * Time: 0:39
- */
+
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/config.php';
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(-1);
