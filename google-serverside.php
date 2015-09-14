@@ -95,6 +95,41 @@ function catchGoogleExceptions($e) {
     }
     die;
 }
+
+
+/**
+ * Retrieve a list of File resources.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @return Array List of Google_Service_Drive_DriveFile resources.
+ */
+function retrieveReportFiles($service)
+{
+    $result = array();
+    $pageToken = NULL;
+
+    do {
+        try {
+            $parameters = array(
+                'q' => 'title contains "'.date(DATE_FORMAT_FNAME).'"
+                 and trashed = false and mimeType="'.GDOC_SHEET_MIME_GET.'" and
+                 properties has { key="isAsanaGDocReport" and value="true" and visibility="PUBLIC"}'
+            );
+            if ($pageToken) {
+                $parameters['pageToken'] = $pageToken;
+            }
+            $files = $service->files->listFiles($parameters);
+
+            $result = array_merge($result, $files->getItems());
+            $pageToken = $files->getNextPageToken();
+        } catch (Exception $e) {
+            catchGoogleExceptions($e);
+            $pageToken = NULL;
+        }
+    } while ($pageToken);
+    return $result;
+}
+
 /**
  * Colorize Console text
  * @param $text
