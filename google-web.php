@@ -98,7 +98,7 @@ require __DIR__ . '/config.php';
                     for (var i = 0; i < files.length; i++) {
                         var file = files[i];
                         appendPre(file.title + ' (' + file.id + ') pdf '+ file.exportLinks['application/pdf']);
-                        createDraft('me', 'tierwerwolf@gmail.com', afterDraftCreate);
+                        createDraft('me', 'tierwerwolf@gmail.com', file,  afterDraftCreate);
                     }
                 } else {
                     appendPre('No files found.');
@@ -154,22 +154,64 @@ require __DIR__ . '/config.php';
             retrievePageOfFiles(initialRequest, []);
         }
 
-        function createDraft(userId, email, callback) {
-                var message = "To: someguy@example.com\r\nFrom: myself@example.com\r\nSubject: my subject\r\n\r\nBody goes here";
-                var request = gapi.client.gmail.users.drafts.create({
+        function GetFilename(url)
+        {
+            if (url)
+            {
+                var m = url.toString().match(/.*\/(.+?)\./);
+                if (m && m.length > 1)
+                {
+                    return m[1];
+                }
+            }
+            return "";
+        }
+
+        function createDraft(userId, email, attachment, callback) {
+                var mail = "To: "+email+"\r\nFrom: myself@example.com\r\nSubject: my subject\r\n\r\n";
+            var message = "Body goes here";
+            var callback, userId;
+            if (attachment !== null && attachment !== 'undefined' ) {
+
+                var mail = 'Content-Type: multipart/mixed; boundary="'+attachment.name+'"\n' + mail + '\n\n';
+                // The regular message
+                mail += '--'+attachment.name+'\n';
+                mail += 'Content-Type: text/plain; charset="UTF-8"\n\n';
+                mail += message + '\n';
+
+                var reader = new FileReader();
+                reader.onloadend = function (e) {
+                    // The relevant base64-encoding comes after "base64,"
+                    var result = e.target.result.split('base64,')[1];
+                    mail += '--'+attachment.name+'\n';
+                    mail += 'Content-Type: '+attachment.type+'\n';
+                    mail += 'Content-Transfer-Encoding: base64\n';
+                    mail += 'Content-Disposition: attachment; filename="' + attachment.name + '"\n\n';
+
+                    mail += result + '\n';
+                    mail +=  '--foo_bar_baz--';
+                    sendDraftMessage(mail, userId, callback);
+                }
+                reader.onerror = function(event) {
+                    console.error("Файл не может быть прочитан! код " + event.target.error.code);
+                };
+                console.log(attachment.exportLinks['application/pdf']);
+                reader.readAsDataURL(attachment.exportLinks['application/pdf']);
+            } else {
+                mail += message;
+                sendDraftMessage(mail, userId, callback);
+            }
+
+        }
+
+        function sendDraftMessage(mail, userId, callback) {
+            var request = gapi.client.gmail.users.drafts.create({
 
                 'userId': userId,
-                    'message': {
-                        'raw': btoa(message)
-                    }
-//                'draft': {
-//                    'raw': btoa(message),
-//                    'message': {
-//                        'raw': btoa(message)
-//                    }
-//                }
+                'message': {
+                    'raw': btoa(mail)
+                }
             });
-
             request.execute(callback);
         }
 
