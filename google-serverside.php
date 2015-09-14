@@ -35,7 +35,7 @@ function getClient()
 
         if (!$authCode) {
             printf("Open the following link in your browser:\n<a href='%s' target='_blank'>link</a>\n", $authUrl);
-            echo "<form method='post'><input name='authCode'><input type='submit' name='Check code'></form>";
+            echo "<form method='post'><input name='authCode'><input type='submit' name='Check auth code'></form>";
         }
 
         if ($authCode) {
@@ -43,9 +43,9 @@ function getClient()
             $accessToken = $client->authenticate($authCode);
 
             if (file_put_contents($credentialsPath, $accessToken)) {
-                printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "\n", $credentialsPath);
+                printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "<br>", $credentialsPath);
             } else {
-                printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "\n", $credentialsPath);
+                printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "<br>", $credentialsPath);
                 die;
             }
         } else {
@@ -75,11 +75,11 @@ function refreshToken($client)
 function catchGoogleExceptions($e)
 {
     global $credentialsPath, $client;
-    print "An error occurred: " . $e->getMessage() . " \n";
+    print "An error occurred: " . $e->getMessage() . " <br>";
     switch ($e->getCode()) {
         case '401':
             refreshToken($client);
-            print "Token refreshed. Restart app \n";
+            print "Token refreshed. Restart app <br>";
             break;
     }
     die;
@@ -159,7 +159,7 @@ $gMailService = new Google_Service_Gmail($client);
 
 
 // Print the names and IDs for up to 10 files.
-print colorize("Getting Files...", "NOTE") . "\n";
+print colorize("Getting Files...", "NOTE") . "<br>";
 $gFiles = retrieveReportFiles($service);
 
 if (count($gFiles) == 0) {
@@ -220,7 +220,7 @@ if (isset($_POST['report'])) {
             $mail .= $mail .= "--$name--\n";
 
         } else {
-            echo 'Skip. Cannot recive headers <br>';
+            echo 'Skiped. Cannot recive headers <br>';
             continue;
         }
 //        echo '<pre>';
