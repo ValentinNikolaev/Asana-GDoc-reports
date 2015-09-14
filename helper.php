@@ -70,7 +70,7 @@ function getClientNameByProjectId($projectId) {
         }
     }
 
-    return false;
+    return NOT_DEFINED_CLIENT_FOLDER;
 }
 
 function getClientEmailsByProjectId($projectId) {
