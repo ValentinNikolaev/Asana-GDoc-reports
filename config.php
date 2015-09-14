@@ -16,6 +16,7 @@ define('DAILY_REPORT_TEMPLATE', '17mpulibwqYKlWLmBZx_sM6_nEHWfprrsgVCTNSQ6Gfk');
 define('GDOC_SHEET_MIME', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 define('GDOC_SHEET_MIME_GET', 'application/vnd.google-apps.spreadsheet');
 define('GDOC_FOLDER_MIME', 'application/vnd.google-apps.folder');
+define('GDOC_PDF_MIME', 'application/pdf');
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
