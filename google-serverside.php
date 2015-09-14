@@ -195,16 +195,96 @@ if (count($gFiles) == 0) {
 }
 
 if (isset($_POST['report'])) {
+    $allowedHeaders = [
+        "Content-Type",
+        "Content-Disposition"
+    ];
     foreach ($_POST['report'] as $reportUrl) {
-        $mail = "To: some@mail.com\r\nFrom: myself@example.com\r\nSubject: my subject\r\n\r\n";
-        $msg = "Body goes here";
+        $mail = "To: some@mail.com\nFrom: myself@example.com\nSubject: my subject\n";
+        $msg = "Body goes here\n";
         $message= new Google_Service_Gmail_Message();
-        $message->setRaw(base64url_encode($mail.$msg));
 
+
+        $headers = get_headers($reportUrl);
+
+        if ($headers) {
+            $im = file_get_contents($reportUrl);
+            if (!$im) {
+                echo 'Skip. Cannot recive file  '.$reportUrl.'<br>';
+                continue;
+            }
+            $name = base64_encode($reportUrl);
+            $mail .= "Content-Type: multipart/mixed; boundary=\"$name\" \n";
+            $mail .= "--$name\n";
+            $mail .= "Content-Type: text/plain; charset=UTF-8\n\n";
+            $mail .= $msg;
+            $mail .= "--$name\n";
+            foreach ($allowedHeaders as $allowedHeader) {
+                foreach ($headers as $header) {
+                    if (strpos($header,$allowedHeader) !== false) {
+                        $mail .= $header."\n";
+                    }
+                }
+            }
+            $mail .= "Content-Transfer-Encoding: base64\n\n";
+            $mail .= base64_encode($im);
+            $mail .=  $mail .= "--$name--\n";
+
+        } else {
+            echo 'Skip. Cannot recive headers <br>';
+            continue;
+        }
+//        echo '<pre>';
+//        echo($mail);
+        $message->setRaw(base64url_encode($mail));
+
+//        die;
+
+        /*if($im) {
+            $mail = 'Content-Type: multipart/mixed; boundary="'+attachment.name+'"\n' + mail + '\n\n';
+        }
+
+        // The regular message
+        mail += '--'+attachment.name+'\n';
+        mail += 'Content-Type: text/plain; charset="UTF-8"\n\n';
+        mail += message + '\n';*/
         createDraft($gMailService, 'me', $message);
         echo 'Send message '.$reportUrl.' <br>';
     }
 }
+
+
+
+/**
+ * Returns the size of a file without downloading it, or -1 if the file
+ * size could not be determined.
+ *
+ * @param $url - The location of the remote file to download. Cannot
+ * be null or empty.
+ *
+ * @return The size of the file referenced by $url, or -1 if the size
+ * could not be determined.
+ */
+function curl_get_file_headers( $url ) {
+    // Assume failure.
+    $result = -1;
+
+    $curl = curl_init( $url );
+
+    // Issue a HEAD request and follow any redirects.
+    curl_setopt( $curl, CURLOPT_NOBODY, true );
+    curl_setopt( $curl, CURLOPT_HEADER, true );
+    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+//    curl_setopt( $curl, CURLOPT_USERAGENT, get_user_agent_string() );
+
+    $data = curl_exec( $curl );
+    curl_close( $curl );
+
+
+    return $data;
+}
+
 
 function base64url_encode($data) {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
