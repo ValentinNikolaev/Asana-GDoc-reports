@@ -187,7 +187,7 @@ if (count($gFiles) == 0) {
 //            $file->getId(),
 //            $file->getmimeType());
     }
-    echo "<input type='submit' name='Convert to PDF and make drafts!'></form>";
+    echo "<input type='submit' value='Convert to PDF and make drafts!'></form>";
 }
 
 if (isset($_POST['report'])) {
