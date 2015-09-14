@@ -4,11 +4,6 @@ require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/helper.php';
 //require __DIR__ . '/asana.php';
 
-global $gProjectDir;
-global $humanTags;
-global $credentialsPath;
-global $client;
-
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 

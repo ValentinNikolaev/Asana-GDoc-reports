@@ -3,7 +3,7 @@
 require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/helper.php';
 
-global $client, $credentialsPath;
+
 
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
