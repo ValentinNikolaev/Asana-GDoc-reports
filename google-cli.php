@@ -37,7 +37,7 @@ function getClient()
     global $credentialsPath, $client;
     $client = new Google_Client();
     $client->setApplicationName(APPLICATION_NAME);
-    $client->setScopes(SCOPES);
+    $client->setScopes(GAPI_SCOPES);
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
 
