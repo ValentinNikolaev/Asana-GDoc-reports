@@ -176,8 +176,8 @@ if (count($gFiles) == 0) {
         }
 
         $meta = json_encode([
-            'To' => getClientNameByProjectId(getPropertyByKey($file, 'asanaProjectId')),
-            'Subject' => EMAIL_REPORT_SUBJECT
+            'to' => getClientNameByProjectId(getPropertyByKey($file, 'asanaProjectId')),
+            'subject' => EMAIL_REPORT_SUBJECT
         ]);
 
         echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '<br>';
@@ -196,8 +196,19 @@ if (isset($_POST['report'])) {
         "Content-Disposition"
     ];
     foreach ($_POST['report'] as $reportUrl) {
-        $mail = "To: some@mail.com\nSubject: my subject\n";
+        $to = '';
+        $subject = '';
         $msg = "Body goes here\n";
+
+        if (isset($_POST[$reportUrl])) {
+            $meta = json_decode($_POST[$reportUrl]);
+            if (isset($meta['to']))
+                $to = $meta['to'];
+            if (isset($meta['subject']))
+                $subject = $meta['subject'];
+        }
+        $mail = "To: $to\nSubject: $subject\n";
+
         $message = new Google_Service_Gmail_Message();
 
 
