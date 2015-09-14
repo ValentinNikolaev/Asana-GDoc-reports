@@ -23,7 +23,7 @@ $humanTags = [
  * clients and projects
  */
 
-define('NOT_DEFINED_CLIENT_FOLDER', 'Not defined clients');
+define('NOT_DEFINED_CLIENT_FOLDER', 'Not defined client');
 
 $clientsProjects = [
     [
