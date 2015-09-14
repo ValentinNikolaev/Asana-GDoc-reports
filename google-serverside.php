@@ -143,6 +143,27 @@ function colorize($text, $status)
     return $text;
 }
 
+/**
+ * Create Draft email.
+ *
+ * @param  Google_Service_Gmail $service Authorized Gmail API instance.
+ * @param  string $userId User's email address. The special value 'me'
+ * can be used to indicate the authenticated user.
+ * @param  Google_Service_Gmail_Message $message Message of the created Draft.
+ * @return Google_Service_Gmail_Draft Created Draft.
+ */
+function createDraft($service, $user, $message) {
+    $draft = new Google_Service_Gmail_Draft();
+    $draft->setMessage($message);
+    try {
+        $draft = $service->users_drafts->create($user, $draft);
+        print 'Draft ID: ' . $draft->getId();
+    } catch (Exception $e) {
+        print 'An error occurred: ' . $e->getMessage();
+    }
+    return $draft;
+}
+
 $client = getClient();
 $service = new Google_Service_Drive($client);
 
