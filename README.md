@@ -1,8 +1,5 @@
 # setup
-
-mkdir -m 755 /credentials
-mkdir -m 755 /reports
-mkdir -m 755 /tmp
+mkdir -m 755 credentials && mkdir -m 755 reports && mkdir -m 755 tmp
 
 # Run from Cli to generateAsana reports
 
