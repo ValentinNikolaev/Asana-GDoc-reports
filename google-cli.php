@@ -259,14 +259,14 @@ function generateXlsReports($data, $fileName, $clientName)
         $projectsCounter = 0;
         foreach ($data as $projectId => $projectData) {
             $projectsCounter++;
-
+            $projectName = isset($projectData['project']) ? $projectData['project']->name : 'undefined project';
 
             if ($projectsCounter > 1 && $th) {
                 $thCellRow = $tableStartCellRowLoop + 3;
 
                 if ($projectTitleCell) {
                     $titleCell = $projectTitleCell['column'].($thCellRow - 1);
-                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectData['project']->name ? $projectData['project']->name : "Unknown project");
+                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell,$projectName);
                     $objPHPExcel->getActiveSheet()->duplicateStyle($projectTitleCell['style'], $titleCell);
                 }
 
@@ -282,7 +282,7 @@ function generateXlsReports($data, $fileName, $clientName)
             } else {
                 if ($projectTitleCell) {
                     $titleCell = $projectTitleCell['column'].$projectTitleCell['row'];
-                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectData['project']->name ? $projectData['project']->name : "Unknown project");
+                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectName);
 
                 }
 
