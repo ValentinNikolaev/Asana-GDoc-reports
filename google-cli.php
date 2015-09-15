@@ -259,8 +259,8 @@ function generateXlsReports($data, $fileName, $clientName)
         $projectsCounter = 0;
         foreach ($data as $projectId => $projectData) {
             $projectsCounter++;
-            var_dump(array_keys($projectData));
-            $projectName = isset($projectData['project']) ? $projectData['project']->name : 'undefined project';
+//            var_dump(array_keys($projectData));
+            $projectName = isset($projectData['project']) ? $projectData['project']->name : 'Project';
 
             if ($projectsCounter > 1 && $th) {
                 $thCellRow = $tableStartCellRowLoop + 3;
