@@ -88,7 +88,7 @@ define('GDOC_FOLDER_MIME', 'application/vnd.google-apps.folder');
 define('GDOC_PDF_MIME', 'application/pdf');
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
-define('CREDENTIALS_PATH', '~/.credentials/drive-api-asana-gdoc.json');
+define('CREDENTIALS_PATH', __DIR__.'/credentials/drive-api-asana-gdoc-cli.json');
 define('CREDENTIALS_PATH_PHP', __DIR__.'/credentials/drive-api-asana-gdoc.json');
 define('TMP_PATH', __DIR__.'/tmp/');
 define('REPORTS_PATH', __DIR__.'/reports/');
