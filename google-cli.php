@@ -138,11 +138,11 @@ function catchGoogleExceptions($e) {
     die;
 }
 
-function generateXlsReports($data, $fileName)
+function generateXlsReports($data, $fileName, $clientName)
 {
     $alphas = range('A', 'Z');
     $highestRowBoard = 50;
-    print colorizeCli("Generate report for project " . $data['project']->name, "NOTE") . "\n";
+    print colorizeCli("Generate report for client " .$clientName, "NOTE") . "\n";
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
     // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -173,6 +173,7 @@ function generateXlsReports($data, $fileName)
     );
 
     $th = [];
+    $projectTitleCell = [];
 
     /** try to find meta tags */
     for ($row = 1; $row <= $highestRow; $row++) {
@@ -187,7 +188,12 @@ function generateXlsReports($data, $fileName)
                     $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, RESPONSE_PERSON);
                     break;
                 case '<project_title>':
-                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $data['project']->name);
+                    $projectTitleCell = [
+                        'row' => $row,
+                        'column' => $column,
+                        'style' => $sheet->getStyle($cellAddress)
+                    ];
+//                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $data['project']->name);
                     break;
                 case '<task_type>':
                     if (!$tableStartCell)
@@ -199,7 +205,7 @@ function generateXlsReports($data, $fileName)
                     /** will work for one line th */
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                        'style' => $sheet->getStyle($column.($row-1)),
                     ];
 
                     break;
@@ -208,11 +214,11 @@ function generateXlsReports($data, $fileName)
                         $tableStartCell = $cellAddress;
                     $tableCells[] = [
                         'key' => 'completed',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                        'style' => $sheet->getStyle($cellAddress)
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                        'style' => $sheet->getStyle($column.($row-1)),
                     ];
                     break;
                 case '<notes>':
@@ -224,7 +230,7 @@ function generateXlsReports($data, $fileName)
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                        'style' => $sheet->getStyle($column.($row-1)),
                     ];
                     break;
                 case '<link>':
@@ -236,7 +242,7 @@ function generateXlsReports($data, $fileName)
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                        'style' => $sheet->getStyle($column.($row-1)),
                     ];
                     break;
             }
@@ -250,43 +256,77 @@ function generateXlsReports($data, $fileName)
         $tableStartCellColumn = $tableStartCell[0];
         $tableStartCellRow = substr($tableStartCell, 1);
         $tableStartCellRowLoop = $tableStartCellRow;
-        foreach ($data['tasks'] as $key => $task) {
-            $tableStartCellColumnLoop = $tableStartCellColumn;
+        $projectsCounter = 0;
+        foreach ($data as $projectId => $projectData) {
+            $projectsCounter++;
 
-            foreach ($tableCells as $cell) {
-                $tableCellAddress = $tableStartCellColumnLoop . $tableStartCellRowLoop;
-                $value = '';
-                $url = false;
-                $tplCell = $cell['key'];
-                if (isset($task[$tplCell])) {
-                    if (is_array($task[$tplCell])) {
-                        if (isset($task[$tplCell]['title']))
-                            $value = $task[$tplCell]['title'];
-                        if (isset($task[$tplCell]['url']))
-                            $url = $task[$tplCell]['url'];
-                    } else {
-                        $value = $task[$tplCell];
-                    }
 
-                } else {
-                    $value = '';
+            if ($projectsCounter > 1 && $th) {
+                $thCellRow = $tableStartCellRowLoop + 3;
+
+                if ($projectTitleCell) {
+                    $titleCell = $projectTitleCell['column'].($thCellRow - 1);
+                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectData['project']->name ? $projectData['project']->name : "Unknown project");
+                    $objPHPExcel->getActiveSheet()->duplicateStyle($projectTitleCell['style'], $titleCell);
                 }
-                $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
-                if (isset($cell['style']))
-                    $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
-                $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
-                $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
-                if ($url)
-                    $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
-                $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
-            }
-            $tableStartCellRowLoop = $tableStartCellRow + $key;
 
+                foreach ($th as $thCellColumn => $thCell) {
+                    $thCellAddress = $thCellColumn . $thCellRow;
+                    $objPHPExcel->getActiveSheet()->setCellValue($thCellAddress, $thCell['cellValue']);
+                    $objPHPExcel->getActiveSheet()->duplicateStyle($thCell['style'], $thCellAddress);
+                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->applyFromArray($styleArray);
+                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->getAlignment()->setWrapText(true);
+                }
+
+                $tableStartCellRowLoop = $thCellRow + 1;
+            } else {
+                if ($projectTitleCell) {
+                    $titleCell = $projectTitleCell['column'].$projectTitleCell['row'];
+                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectData['project']->name ? $projectData['project']->name : "Unknown project");
+
+                }
+
+            }
+
+
+
+            foreach ($projectData['tasks'] as $key => $task) {
+                $tableStartCellColumnLoop = $tableStartCellColumn;
+
+                foreach ($tableCells as $cell) {
+                    $tableCellAddress = $tableStartCellColumnLoop . $tableStartCellRowLoop;
+                    $value = '';
+                    $url = false;
+                    $tplCell = $cell['key'];
+                    if (isset($task[$tplCell])) {
+                        if (is_array($task[$tplCell])) {
+                            if (isset($task[$tplCell]['title']))
+                                $value = $task[$tplCell]['title'];
+                            if (isset($task[$tplCell]['url']))
+                                $url = $task[$tplCell]['url'];
+                        } else {
+                            $value = $task[$tplCell];
+                        }
+
+                    } else {
+                        $value = '';
+                    }
+                    $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
+                    if (isset($cell['style']))
+                        $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
+                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
+                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
+                    if ($url)
+                        $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
+                    $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
+                }
+                $tableStartCellRowLoop = $tableStartCellRow + $key;
+            }
         }
     }
 
-    $folder = createProjectReportDir($data['project']->name);
-    $fileName = getClientNameByProjectId($data['project']->id) . " " . date(DATE_FORMAT_FNAME) . ".xls";
+    $folder = createProjectReportDir($clientName);
+    $fileName = $clientName . " " . date(DATE_FORMAT_FNAME) . ".xls";
     $fileReport = $folder . $fileName;
     printf("Save report to %s ... \n", $fileReport);
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
@@ -659,7 +699,9 @@ if ($templates) {
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
-                    $fileReport = generateXlsReports($taskData, $template);
+
+                    $fileReport = generateXlsReports($taskData, $template, $clientName);
+//                die;
                     if (file_exists($fileReport)) {
                         printf("Uploading report '" . basename($fileReport) . "' to google drive....\n");
                         $saveDir = $gProjectDir;
