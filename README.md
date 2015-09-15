@@ -9,5 +9,4 @@ sudo chown -R www-data:www-data credentials/
 3. Insert code at Cli
 
 # Send drafts
-1. Run step 1 from here https://developers.google.com/gmail/api/quickstart/php
-2. To get latest report list, run google-serverside.php from browser
+1. To get latest report list, run google-serverside.php from browser
