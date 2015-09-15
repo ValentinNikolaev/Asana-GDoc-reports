@@ -61,9 +61,10 @@ function getStartTasksDate()
 }
 
 
-function getClientNameByProjectId($projectId) {
+function getClientNameByProjectId($projectId)
+{
     global $clientsProjects;
-    foreach ($clientsProjects as $clientName => $clientData) {
+    foreach ($clientsProjects as $clientData) {
         foreach ($clientData['projects'] as $project) {
             if ($project['id'] == $projectId)
                 return $clientData['name'];
@@ -73,30 +74,33 @@ function getClientNameByProjectId($projectId) {
     return NOT_DEFINED_CLIENT_FOLDER;
 }
 
-function getClientEmailsByProjectId($projectId) {
+function getClientEmailsByProjectId($projectId)
+{
     global $clientsProjects;
-    foreach ($clientsProjects as $clientName => $clientData) {
+    foreach ($clientsProjects as $clientData) {
         foreach ($clientData['projects'] as $project) {
             if ($project['id'] == $projectId)
-                return $project['send_to'];
+                return $clientData['send_to'];
         }
     }
+    return [];
 }
 
-function getClientEmailsByClientName($findClientName) {
+function getClientEmailsByClientName($findClientName)
+{
     global $clientsProjects;
-    foreach ($clientsProjects as $clientName => $clientData) {
-        if ($clientName == $findClientName) {
-            foreach ($clientData['projects'] as $project) {
-                    return $project['send_to'];
-            }
+    foreach ($clientsProjects as $clientData) {
+        if ($clientData['name'] == $findClientName) {
+            return $clientData['send_to'];
+
         }
 
     }
-    return '';
+    return [];
 }
 
-function getPropertyByKey($file, $key) {
+function getPropertyByKey($file, $key)
+{
     $properties = $file->getProperties();
 
     foreach ($properties as $property) {
