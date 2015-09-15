@@ -637,15 +637,16 @@ if ($templates) {
 
         foreach ($templates as $template) {
             printf("Processing Report template %s \n", $template);
-            foreach ($tasks['data'] as $taskData) {
+            foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
-                if (isset($taskData['project'])) {
+//                if (isset($taskData['project'])) {
                     $fileReport = generateXlsReports($taskData, $template);
                     if (file_exists($fileReport)) {
                         printf("Uploading report '" . basename($fileReport) . "' to google drive....\n");
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
-                        $reportFolderName = getClientNameByProjectId($taskData['project']->id)." <".$taskData['project']->name.">";
+                        $reportFolderName = $clientName;
+
                         $fileReportName = basename($fileReport);
                           foreach ($gDirs as $dir) {
                             if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
@@ -674,7 +675,7 @@ if ($templates) {
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
                         insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
-                }
+//                }
 
             }
         }
