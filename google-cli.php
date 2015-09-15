@@ -466,7 +466,8 @@ function getAsanaTasks($startTasksDate = 'now')
         }
         $projectsJson = json_decode($projects);
         foreach ($projectsJson->data as $project) {
-            $returnData[$project->id] = [
+            $rDataKey = getClientNameByProjectId($project->id);
+            $returnData[$rDataKey][$project->id] = [
                 'workspace' => $workspace,
                 'project' => $project,
                 'tasks' => [],
@@ -478,7 +479,7 @@ function getAsanaTasks($startTasksDate = 'now')
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
                 printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get tasks, project "' . $project->name . '"], response code: ' . $asana->responseCode . "\n");
-                unset($returnData[$project->id]);
+                unset($returnData[$rDataKey][$project->id]);
                 continue;
             }
             $tasks = array();
@@ -490,7 +491,7 @@ function getAsanaTasks($startTasksDate = 'now')
                 $taskJson = json_decode($taskFullInfo);
                 if ($asana->responseCode != '200' || is_null($tasks)) {
                     printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get task Info. Project "' . $project->name . '". Task "' . $task->name . '"], response code: ' . $asana->responseCode . "\n");
-                    unset($returnData[$project->id]);
+                    unset($returnData[getClientNameByProjectId($project->id)][$project->id]);
                     continue;
                 }
 
@@ -520,22 +521,28 @@ function getAsanaTasks($startTasksDate = 'now')
 //                        /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
             }
             if ($tasks) {
-                $returnData[$project->id]['tasks'] = $tasks;
+                $returnData[$rDataKey][$project->id]['tasks'] = $tasks;
                 $tasksCounter = $tasksCounter + count($tasks);
                 $projectsCounter++;
             } else {
-                unset($returnData[$project->id]);
+                unset($returnData[$rDataKey][$project->id]);
             }
-
-//            if ($tasks) {
-//                echo '<strong>[ ' . $project->name . ' (id ' . $project->id . ')' . ' ]</strong><br>' . PHP_EOL;
-//                echo implode("", $tasks);
-//                echo '<hr>';
-//            }
-
-
         }
+
+        // remove empty entities
+        if ($returnData)
+            foreach ($returnData as $clientName => $clientData) {
+                if (!$clientData)
+                    unset($returnData[$clientName]);
+                else
+                    foreach ($clientData as $projectId => $projectData) {
+                        if (!$projectData)
+                            unset($returnData[$clientName][$projectId]);
+                    }
+            }
     }
+
+//    var_dump($returnData);die;
 
     return [
         'data' => $returnData,
