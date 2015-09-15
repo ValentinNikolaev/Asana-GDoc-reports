@@ -176,7 +176,14 @@ if (count($gFiles) == 0) {
         }
 
 
-        echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '[created: '.$file->getCreatedDate().']<br>';
+        $parents = $file->getParents();
+        $folders = [];
+        foreach ($parents as $folder) {
+            $folderData = $service->files->get($folder->id);
+            $folders[] = htmlspecialchars($folderData->getTitle());
+        }
+
+        echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">'.implode("/", $folders).'/'. $file->getTitle().'<br>';
         echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByClientName(getPropertyByKey($file, 'asanaClientName'))).'">';
         echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "'.EMAIL_REPORT_SUBJECT.'">';
 //        printf("%s (%s) %s\n",
