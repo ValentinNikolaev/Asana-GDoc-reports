@@ -2,4 +2,4 @@
 /vendor/*
 /composer.phar
 composer.lock
-client_secret.json
+#client_secret.json
