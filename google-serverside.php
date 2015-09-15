@@ -212,6 +212,7 @@ if (isset($_POST['report'])) {
         $mail = "To: $to\nSubject: $subject\n";
 
 
+        echo 'Mail: '.$mail.' <br>';
         $message = new Google_Service_Gmail_Message();
 
 
@@ -220,7 +221,7 @@ if (isset($_POST['report'])) {
         if ($headers) {
             $im = file_get_contents($reportUrl);
             if (!$im) {
-                echo 'Skip. Cannot recive file  ' . $reportUrl . '<br>';
+                echo 'Skipped. Cannot receive file  ' . $reportUrl . '<br>';
                 continue;
             }
             $name = base64_encode($reportUrl);
@@ -241,7 +242,7 @@ if (isset($_POST['report'])) {
             $mail .= "--$name--\n";
 
         } else {
-            echo 'Skiped. Cannot recive headers <br>';
+            echo 'Skipped. Cannot recive headers <br>';
             continue;
         }
 //        echo '<pre>';
