@@ -172,6 +172,8 @@ function generateXlsReports($data, $fileName)
         ),
     );
 
+    $th = [];
+
     /** try to find meta tags */
     for ($row = 1; $row <= $highestRow; $row++) {
         foreach ($alphas as $column) {
@@ -194,6 +196,11 @@ function generateXlsReports($data, $fileName)
                         'key' => 'tags',
                         'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
                     ];
+                    /** will work for one line th */
+                    $th[$column] = [
+                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                    ];
 
                     break;
                 case '<task_completed>':
@@ -203,6 +210,10 @@ function generateXlsReports($data, $fileName)
                         'key' => 'completed',
                         'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
                     ];
+                    $th[$column] = [
+                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                    ];
                     break;
                 case '<notes>':
                     if (!$tableStartCell)
@@ -211,6 +222,10 @@ function generateXlsReports($data, $fileName)
                         'key' => 'notes',
                         'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
                     ];
+                    $th[$column] = [
+                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
+                    ];
                     break;
                 case '<link>':
                     if (!$tableStartCell)
@@ -218,6 +233,10 @@ function generateXlsReports($data, $fileName)
                     $tableCells[] = [
                         'key' => 'link',
                         'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                    ];
+                    $th[$column] = [
+                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress),
                     ];
                     break;
             }
