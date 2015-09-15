@@ -470,7 +470,7 @@ function removeFileIfExists($service, $title, $folderId) {
     if ($result)
         foreach ($result as $file) {
             printf("Deleting exist file %s \n", $file->title);
-            $service->permissions->delete($file->getId(), $service->about->get()->permissionId);
+//            $service->permissions->delete($file->getId(), $service->about->get()->permissionId);
             deleteFile($service, $file->getId());
         }
 
