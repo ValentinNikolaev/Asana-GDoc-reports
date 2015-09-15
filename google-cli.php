@@ -667,8 +667,8 @@ if ($templates) {
 
                             ],
                             [
-                                'key' => 'asanaProjectId',
-                                'value' => $taskData['project']->id,
+                                'key' => 'asanaClientName',
+                                'value' => $clientName,
                                 'visibility' => 'PUBLIC',
                             ]
                         ];
