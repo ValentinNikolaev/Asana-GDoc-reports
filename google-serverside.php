@@ -183,6 +183,7 @@ if (count($gFiles) == 0) {
             $folders[] = htmlspecialchars($folderData->getTitle());
         }
 
+        $fileLink = "<a href='".$downloadUrl."' target'_blank'>".$file->getTitle()."</a>";
         echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">'.implode("/", $folders).'/'. $file->getTitle().'<br>';
         echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByClientName(getPropertyByKey($file, 'asanaClientName'))).'">';
         echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "'.EMAIL_REPORT_SUBJECT.'">';
@@ -212,15 +213,15 @@ if (isset($_POST['report'])) {
         $mail = "To: $to\nSubject: $subject\n";
 
 
-        echo 'Mail: '.$mail.' <br>';
+
         $message = new Google_Service_Gmail_Message();
 
 
         $headers = get_headers($reportUrl);
-
+        var_dump($headers);
         if ($headers) {
             $im = file_get_contents($reportUrl);
-            if (!$im) {
+            if ($im === FALSE) {
                 echo 'Skipped. Cannot receive file  ' . $reportUrl . '<br>';
                 continue;
             }
