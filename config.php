@@ -78,7 +78,7 @@ $clientsProjects = [
 define('GAPI_SCOPES', implode(' ', $scopes));
 define('DEBUG', 1);
 define('ASANA_API_KEY', '3ivyLe5P.NK19uB8GNejRbxSigjLSW09');
-define('TIME_CHECK_FROM', '18:45');
+define('TIME_CHECK_FROM', '19:30');
 define('DATETIME_TIMEZONE_CURRENT', 'Europe/Kiev');
 define('DATETIME_TIMEZONE_ASANA', 'HST');
 
