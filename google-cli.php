@@ -259,6 +259,7 @@ function generateXlsReports($data, $fileName, $clientName)
         $projectsCounter = 0;
         foreach ($data as $projectId => $projectData) {
             $projectsCounter++;
+            var_dump(array_keys($projectData));
             $projectName = isset($projectData['project']) ? $projectData['project']->name : 'undefined project';
 
             if ($projectsCounter > 1 && $th) {
@@ -353,6 +354,30 @@ function createProjectReportDir($projectName = '')
     return REPORTS_PATH;
 }
 
+/**
+ * Insert a new permission.
+ *
+ * @param Google_Service_Drive $service Drive API service instance.
+ * @param String $fileId ID of the file to insert permission for.
+ * @param String $value User or group e-mail address, domain name or NULL for
+"default" type.
+ * @param String $type The value "user", "group", "domain" or "default".
+ * @param String $role The value "owner", "writer" or "reader".
+ * @return Google_Servie_Drive_Permission The inserted permission. NULL is
+ *     returned if an API error occurred.
+ */
+function insertPermission($service, $fileId, $value, $type, $role) {
+    $newPermission = new Google_Service_Drive_Permission();
+    $newPermission->setValue($value);
+    $newPermission->setType($type);
+    $newPermission->setRole($role);
+    try {
+        return $service->permissions->insert($fileId, $newPermission);
+    } catch (Exception $e) {
+        print "An error occurred: " . $e->getMessage();
+    }
+    return NULL;
+}
 
 
 /**
@@ -684,6 +709,8 @@ if ($templates) {
         print "Create GDrive folder '" . GDOC_REPORT_DIR_NAME . "' \n";
         $gProjectDir = insertFolder($service, GDOC_REPORT_DIR_NAME);
     }
+    printf("Set permissions for a report dir....\n");
+    insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
 
 
     $startTasksDate = getStartTasksDate();
