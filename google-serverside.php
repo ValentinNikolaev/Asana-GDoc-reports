@@ -218,8 +218,8 @@ if (isset($_POST['report'])) {
 
 
         $headers = get_headers($reportUrl);
-        echo '<pre>';
-        var_dump($headers);
+//        echo '<pre>';
+//        var_dump($headers);
         if ($headers) {
             $im = file_get_contents($reportUrl);
             if ($im === FALSE) {
