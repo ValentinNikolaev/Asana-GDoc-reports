@@ -736,7 +736,7 @@ if ($templates) {
                         ];
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
                         printf("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
-                        Mime: ".GDOC_SHEET_MIME.". Properties ".jsone_encode($properties)."....\n");
+                        Mime: ".GDOC_SHEET_MIME.". Properties ".json_encode($properties)."....\n");
                         insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
 //                }
