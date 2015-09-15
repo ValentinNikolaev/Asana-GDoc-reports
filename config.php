@@ -1,8 +1,13 @@
 <?php
 
 $scopes = array(
-    Google_Service_Drive::DRIVE, Google_Service_Drive::DRIVE_APPDATA, Google_Service_Drive::DRIVE_FILE, Google_Service_Drive::DRIVE_METADATA,
-    Google_Service_Gmail::GMAIL_INSERT, Google_Service_Gmail::GMAIL_MODIFY, Google_Service_Gmail::MAIL_GOOGLE_COM)
+    Google_Service_Drive::DRIVE,
+    Google_Service_Drive::DRIVE_APPDATA,
+    Google_Service_Drive::DRIVE_FILE,
+    Google_Service_Drive::DRIVE_METADATA,
+    Google_Service_Gmail::GMAIL_INSERT,
+    Google_Service_Gmail::GMAIL_MODIFY,
+    Google_Service_Gmail::MAIL_GOOGLE_COM)
 ;
 
 $humanTags = [
@@ -89,7 +94,7 @@ define('GDOC_PDF_MIME', 'application/pdf');
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', __DIR__.'/credentials/drive-api-asana-gdoc-cli.json');
-define('CREDENTIALS_PATH_PHP', __DIR__.'/credentials/drive-api-asana-gdoc.json');
+define('CREDENTIALS_PATH_PHP',/* __DIR__.'/credentials/drive-api-asana-gdoc.json'*/CREDENTIALS_PATH);
 define('TMP_PATH', __DIR__.'/tmp/');
 define('REPORTS_PATH', __DIR__.'/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
