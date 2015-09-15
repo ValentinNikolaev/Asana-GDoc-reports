@@ -83,6 +83,19 @@ function getClientEmailsByProjectId($projectId) {
     }
 }
 
+function getClientEmailsByClientName($findClientName) {
+    global $clientsProjects;
+    foreach ($clientsProjects as $clientName => $clientData) {
+        if ($clientName == $findClientName) {
+            foreach ($clientData['projects'] as $project) {
+                    return $project['send_to'];
+            }
+        }
+
+    }
+    return '';
+}
+
 function getPropertyByKey($file, $key) {
     $properties = $file->getProperties();
 
