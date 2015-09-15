@@ -177,7 +177,7 @@ if (count($gFiles) == 0) {
 
 
         echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . $file->getTitle() . '<br>';
-        echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByProjectId(getPropertyByKey($file, 'asanaProjectId'))).'">';
+        echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByClientName(getPropertyByKey($file, 'asanaClientName'))).'">';
         echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "'.EMAIL_REPORT_SUBJECT.'">';
 //        printf("%s (%s) %s\n",
 //            $file->getTitle(),
