@@ -9,6 +9,9 @@ global $credentialsPath;
 global $client;
 global $clientsProjects;
 global $log;
+global $isCli;
+
+$isCli = php_sapi_name() == "cli";
 
 if (DEBUG) {
     ini_set('display_errors', 1);
