@@ -220,12 +220,13 @@ function generateXlsReports($data, $fileName, $clientName)
     $objPHPExcel->setActiveSheetIndex(0);
     $sheet = $objPHPExcel->getActiveSheet();
     $highestRow = $sheet->getHighestRow();
-    $highestColumn = $sheet->getHighestColumn();
+    /*$highestColumn = $sheet->getHighestColumn();
     if (!in_array($highestColumn, $alphas)) {
         printf(colorizeCli("FAILED:", "FAILURE") . 'Too many columns in a template. Highest Column %s \n', $highestColumn);
         return;
-    }
+    }*/
 
+    $mergedCells = $objPHPExcel->getActiveSheet()->getMergeCells();
     $highestRow = $highestRow > $highestRowBoard ? $highestRowBoard : $highestRow;
 
     $tableStartCell = '';
