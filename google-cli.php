@@ -9,7 +9,7 @@ $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $templates = [];
 
-function log($message, $level = LOG_INFO, $status = false) {
+function logMessage($message, $level = LOG_INFO, $status = false) {
     global $isCli;
     $prefix = "";
     $statusTxt = "";
@@ -64,19 +64,19 @@ function pushToLog($msg) {
 }
 
 function logError($message) {
-    log($message, LOG_ERR);
+    logMessage($message, LOG_ERR);
 }
 
 function logStatusFailure($message) {
-    log($message, LOG_WARNING, 0);
+    logMessage($message, LOG_WARNING, 0);
 }
 
 function logStatusSuccess($message) {
-    log($message, LOG_INFO, 1);
+    logMessage($message, LOG_INFO, 1);
 }
 
 function closeSession() {
-    log("Close session");
+    logMessage("Close session");
 
     die;
 }
@@ -99,13 +99,13 @@ function getClient()
 
     } else {
         // Request authorization from the user.
-        log("Request authorization from the user");
+        logMessage("Request authorization from the user");
         $authUrl = $client->createAuthUrl();
         printf("Open the following link in your browser:\n%s\n", $authUrl);
 
         print 'Enter verification code: ';
         $authCode = trim(fgets(STDIN));
-        log("Got auth Code $authCode");
+        logMessage("Got auth Code $authCode");
 
         // Exchange authorization code for an access token.
         $accessToken = $client->authenticate($authCode);
@@ -122,7 +122,7 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
-        log("Token Expired");
+        logMessage("Token Expired");
         $client = refreshToken($client);
     }
     return $client;
@@ -292,7 +292,7 @@ function generateXlsReports($data, $fileName, $clientName)
 {
     $alphas = range('A', 'Z');
     $highestRowBoard = 50;
-    log("Start making of the report for client " .$clientName);
+    logMessage("Start making of the report for client " .$clientName);
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
     // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -490,7 +490,7 @@ function generateXlsReports($data, $fileName, $clientName)
     $folder = createProjectReportDir($clientName);
     $fileName = $clientName . " " . date(DATE_FORMAT_FNAME) . ".xls";
     $fileReport = $folder . $fileName;
-    log("Saving report to $fileReport ...");
+    logMessage("Saving report to $fileReport ...");
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileReport);
     return $fileReport;
@@ -501,7 +501,7 @@ function createProjectReportDir($projectName = '')
     if ($projectName) {
         $pathDir = REPORTS_PATH . $projectName . '/';
         if (!file_exists($pathDir)) {
-            log("Project dir '$pathDir' doesn't exists. Try to create... \n");
+            logMessage("Project dir '$pathDir' doesn't exists. Try to create... \n");
             if (mkdir($pathDir, 0777, true)) {
                 logStatusSuccess("Project '$pathDir' create" );
                 return $pathDir;
@@ -655,7 +655,7 @@ function removeFileIfExists($service, $title, $folderId) {
 
     if ($result)
         foreach ($result as $file) {
-            log("Deleting exist file $file->title");
+            logMessage("Deleting exist file $file->title");
 //            $service->permissions->delete($file->getId(), $service->about->get()->permissionId);
             deleteFile($service, $file->getId());
         }
@@ -803,11 +803,11 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
-log("Getting templates...");
+logMessage("Getting templates...");
 $gFiles = retrieveFiles($service);
 
 if (count($gFiles) == 0) {
-    log("No templates found", LOG_WARNING);
+    logMessage("No templates found", LOG_WARNING);
     closeSession();
 } else {
 
@@ -849,13 +849,13 @@ if (!$templates)
  */
 $gProjectDir = false;
 
-log("Templates download: ".count($templates));
+logMessage("Templates download: ".count($templates));
 if ($templates) {
     /**
      * working with gDrive folders
      */
 
-    log("Getting GDrive folders...");
+    logMessage("Getting GDrive folders...");
     $gDirs = retrieveFiles($service, true);
 
     if (count($gDirs) == 0) {
@@ -870,24 +870,24 @@ if ($templates) {
     }
 
     if (!$gProjectDir) {
-        log("Create GDrive folder '" . GDOC_REPORT_DIR_NAME);
+        logMessage("Create GDrive folder '" . GDOC_REPORT_DIR_NAME);
         $gProjectDir = insertFolder($service, GDOC_REPORT_DIR_NAME);
     }
-    log("Set permissions for a report dir....");
+    logMessage("Set permissions for a report dir....");
     insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
 
 
     $startTasksDate = getStartTasksDate();
-    log("Processing Asana tasks....");
-    log("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
+    logMessage("Processing Asana tasks....");
+    logMessage("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
     $tasks = getAsanaTasks($startTasksDate);
     if (!is_array($tasks))
-        log("Something goes wrong during Asana request");
+        logMessage("Something goes wrong during Asana request");
     else {
-        log("Tasks found: " . $tasks['tasksCounter'] . ", projects found: " . $tasks['projectsCounter']);
+        logMessage("Tasks found: " . $tasks['tasksCounter'] . ", projects found: " . $tasks['projectsCounter']);
 
         foreach ($templates as $template) {
-            log("Processing Report template '$template' ");
+            logMessage("Processing Report template '$template' ");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
@@ -895,7 +895,7 @@ if ($templates) {
                     $fileReport = generateXlsReports($taskData, $template, $clientName);
 //                die;
                     if (file_exists($fileReport)) {
-                        log("Uploading report '" . basename($fileReport) . "' to google drive....\n");
+                        logMessage("Uploading report '" . basename($fileReport) . "' to google drive....\n");
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
                         $reportFolderName = $clientName;
@@ -909,7 +909,7 @@ if ($templates) {
                         }
 
                         if (!$foundProjectGDir) {
-                            log("Create GDrive folder for project '" . $reportFolderNam);
+                            logMessage("Create GDrive folder for project '" . $reportFolderNam);
                             $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
                         }
                         $properties = [
@@ -926,7 +926,7 @@ if ($templates) {
                             ]
                         ];
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
-                        log("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
+                        logMessage("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
                         Mime: ".GDOC_SHEET_MIME.". Properties ".json_encode($properties)."....\n");
                         insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
