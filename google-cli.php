@@ -18,7 +18,10 @@ function log($message, $level = LOG_INFO, $status = false) {
             $prefix = "INFO";
             break;
         case LOG_ERR:
-            $prefix = "INFO";
+            $prefix = "ERROR";
+            break;
+        case LOG_WARNING:
+            $prefix = "WARN";
             break;
     }
 
@@ -32,6 +35,10 @@ function log($message, $level = LOG_INFO, $status = false) {
         default:
             break;
     }
+}
+
+function logError($message) {
+    log($message, LOG_ERR);
 }
 
 function logStatusFailure($message) {
@@ -173,14 +180,14 @@ function retrieveFiles($service, $findDirs = false)
 
 function catchGoogleExceptions($e) {
     global $credentialsPath, $client;
-    print "An error occurred: " . $e->getMessage()." \n";
+    logError("An error occurred: " . $e->getMessage());
     switch ($e->getCode()) {
         case '401':
             refreshToken($client);
-            print "Token refreshed. Restart app \n";
+            logError("Token refreshed. Please restart app") ;
             break;
     }
-    die;
+    closeSession();
 }
 
 function getMerged($address, $mergedCells) {
