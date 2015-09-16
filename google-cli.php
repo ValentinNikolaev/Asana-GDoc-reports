@@ -265,7 +265,7 @@ function generateXlsReports($data, $fileName, $clientName)
 {
     $alphas = range('A', 'Z');
     $highestRowBoard = 50;
-    print colorizeCli("Generate report for client " .$clientName, "NOTE") . "\n";
+    log("Start making of the report for client " .$clientName);
     $objReader = PHPExcel_IOFactory::createReader('Excel2007');
     $objPHPExcel = $objReader->load($fileName);// Change the file
     // Set active sheet index to the first sheet, so Excel opens this as the first sheet
@@ -463,7 +463,7 @@ function generateXlsReports($data, $fileName, $clientName)
     $folder = createProjectReportDir($clientName);
     $fileName = $clientName . " " . date(DATE_FORMAT_FNAME) . ".xls";
     $fileReport = $folder . $fileName;
-    printf("Save report to %s ... \n", $fileReport);
+    log("Saving report to $fileReport ...");
     $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
     $objWriter->save($fileReport);
     return $fileReport;
@@ -474,12 +474,12 @@ function createProjectReportDir($projectName = '')
     if ($projectName) {
         $pathDir = REPORTS_PATH . $projectName . '/';
         if (!file_exists($pathDir)) {
-            printf("Project dir '%s' doesn't exists. Try to create... \n", $pathDir);
+            log("Project dir '$pathDir' doesn't exists. Try to create... \n");
             if (mkdir($pathDir, 0777, true)) {
-                printf("Project dir %s created: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $pathDir);
+                logStatusSuccess("Project '$pathDir' create" );
                 return $pathDir;
             } else {
-                printf("Project dir %s was not created: " . colorizeCli("FAILED", "FAILURE") . "\n", $pathDir);
+                logStatusFailure("Project '$pathDir' create");
             }
         } else
             return $pathDir;
@@ -508,7 +508,7 @@ function insertPermission($service, $fileId, $value, $type, $role) {
     try {
         return $service->permissions->insert($fileId, $newPermission);
     } catch (Exception $e) {
-        print "An error occurred: " . $e->getMessage();
+       catchGoogleExceptions($e);
     }
     return NULL;
 }
@@ -628,7 +628,7 @@ function removeFileIfExists($service, $title, $folderId) {
 
     if ($result)
         foreach ($result as $file) {
-            printf("Deleting exist file %s \n", $file->title);
+            log("Deleting exist file $file->title");
 //            $service->permissions->delete($file->getId(), $service->about->get()->permissionId);
             deleteFile($service, $file->getId());
         }
@@ -670,7 +670,7 @@ function getAsanaTasks($startTasksDate = 'now')
     $workspaces = $asana->getWorkspaces();
 // As Asana API documentation says, when response is successful, we receive a 200 in response so...
     if ($asana->responseCode != '200' || is_null($workspaces)) {
-        printf(colorizeCli("FAILED:", "FAILURE") . 'Error while trying to connect to Asana, response code: ' . $asana->responseCode . "\n");
+        logStatusFailure('Error while trying to connect to Asana, response code: ' . $asana->responseCode);
         return;
     }
     $workspacesJson = json_decode($workspaces);
@@ -680,7 +680,7 @@ function getAsanaTasks($startTasksDate = 'now')
         $projects = $asana->getProjectsInWorkspace($workspace->id, $archived = false);
         // As Asana API documentation says, when response is successful, we receive a 200 in response so...
         if ($asana->responseCode != '200' || is_null($projects)) {
-            printf(colorizeCli("FAILED:", "FAILURE") . 'Error while trying to connect to Asana [get project, workspace ' . $workspace->name . '], response code: ' . $asana->responseCode . "\n");
+            logStatusFailure('Error while trying to connect to Asana [get project, workspace ' . $workspace->name . '], response code: ' . $asana->responseCode);
             continue;
         }
         $projectsJson = json_decode($projects);
@@ -697,7 +697,7 @@ function getAsanaTasks($startTasksDate = 'now')
 
             $tasksJson = json_decode($tasks);
             if ($asana->responseCode != '200' || is_null($tasks)) {
-                printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get tasks, project "' . $project->name . '"], response code: ' . $asana->responseCode . "\n");
+                logStatusFailure('Error while trying to connect to Asana [get tasks, project "' . $project->name . '"], response code: ' . $asana->responseCode);
                 unset($returnData[$rDataKey][$project->id]);
                 continue;
             }
@@ -709,7 +709,7 @@ function getAsanaTasks($startTasksDate = 'now')
 
                 $taskJson = json_decode($taskFullInfo);
                 if ($asana->responseCode != '200' || is_null($tasks)) {
-                    printf(colorizeCli("FAILED:", "WARNING") . 'Error while trying to connect to Asana [get task Info. Project "' . $project->name . '". Task "' . $task->name . '"], response code: ' . $asana->responseCode . "\n");
+                    logStatusFailure('Error while trying to connect to Asana [get task Info. Project "' . $project->name . '". Task "' . $task->name . '"], response code: ' . $asana->responseCode);
                     unset($returnData[getClientNameByProjectId($project->id)][$project->id]);
                     continue;
                 }
@@ -776,11 +776,12 @@ $client = getClient();
 $service = new Google_Service_Drive($client);
 
 // Print the names and IDs for up to 10 files.
-print colorizeCli("Getting Files...", "NOTE") . "\n";
+log("Getting templates...");
 $gFiles = retrieveFiles($service);
 
 if (count($gFiles) == 0) {
-    print "No files found.\n";
+    log("No templates found", LOG_WARNING);
+    closeSession();
 } else {
 
     foreach ($gFiles as $file) {
@@ -798,20 +799,22 @@ if (count($gFiles) == 0) {
             if ($downloadResult) {
                 $fileFs = TMP_PATH . $file->getId() . '.xls';
                 if (file_put_contents($fileFs, $downloadResult)) {
-                    printf("Template saved to %s: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $fileFs);
+                    logStatusSuccess("Template saved to $fileFs");
                     $templates[] = ($fileFs);
                 } else {
-                    printf("Template saved to %s: " . colorizeCli("FAILED", "FAILURE") . "\n", $fileFs);
+                    logStatusFailure("Template saved to $fileFs");
 
                 }
             } else {
-                printf("Download result for '%s': " . colorizeCli("FAILED", "FAILURE") . "\n", $file->getTitle());
-
+                logStatusFailure("Can not download $fileFs");
             }
 
         }
     }
 }
+
+if (!$templates)
+    closeSession();
 
 
 /**
@@ -819,17 +822,17 @@ if (count($gFiles) == 0) {
  */
 $gProjectDir = false;
 
-printf("Templates download: " . colorizeCli(count($templates), "NOTE") . "\n");
+log("Templates download: ".count($templates));
 if ($templates) {
     /**
      * working with gDrive folders
      */
 
-    print colorizeCli("Getting GDrive folders...", "NOTE") . "\n";
+    log("Getting GDrive folders...");
     $gDirs = retrieveFiles($service, true);
 
     if (count($gDirs) == 0) {
-        print colorizeCli("No folders were found.\n", "WARNING") . "\n";
+        log ("No folders were found");
 
     } else {
         foreach ($gDirs as $dir) {
@@ -840,24 +843,24 @@ if ($templates) {
     }
 
     if (!$gProjectDir) {
-        print "Create GDrive folder '" . GDOC_REPORT_DIR_NAME . "' \n";
+        log("Create GDrive folder '" . GDOC_REPORT_DIR_NAME);
         $gProjectDir = insertFolder($service, GDOC_REPORT_DIR_NAME);
     }
-    printf("Set permissions for a report dir....\n");
+    log("Set permissions for a report dir....");
     insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
 
 
     $startTasksDate = getStartTasksDate();
-    printf("Processing Asana tasks....\n");
-    printf("Start from: " . colorizeCli($startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]", "WARNING") . "\n");
+    log("Processing Asana tasks....");
+    log("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
     $tasks = getAsanaTasks($startTasksDate);
     if (!is_array($tasks))
-        printf("Something goes wrong during Asana request" . "\n");
+        log("Something goes wrong during Asana request");
     else {
-        printf("Tasks found: " . $tasks['tasksCounter'] . ", projects found: " . $tasks['projectsCounter'] . " \n");
+        log("Tasks found: " . $tasks['tasksCounter'] . ", projects found: " . $tasks['projectsCounter']);
 
         foreach ($templates as $template) {
-            printf("Processing Report template %s \n", $template);
+            log("Processing Report template '$template' ");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
@@ -865,7 +868,7 @@ if ($templates) {
                     $fileReport = generateXlsReports($taskData, $template, $clientName);
 //                die;
                     if (file_exists($fileReport)) {
-                        printf("Uploading report '" . basename($fileReport) . "' to google drive....\n");
+                        log("Uploading report '" . basename($fileReport) . "' to google drive....\n");
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
                         $reportFolderName = $clientName;
@@ -879,7 +882,7 @@ if ($templates) {
                         }
 
                         if (!$foundProjectGDir) {
-                            print "Create GDrive folder for project '" . $reportFolderName . "' \n";
+                            log("Create GDrive folder for project '" . $reportFolderNam);
                             $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
                         }
                         $properties = [
@@ -896,7 +899,7 @@ if ($templates) {
                             ]
                         ];
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
-                        printf("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
+                        log("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
                         Mime: ".GDOC_SHEET_MIME.". Properties ".json_encode($properties)."....\n");
                         insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
@@ -907,7 +910,5 @@ if ($templates) {
     }
 
 
-} else {
-    printf("Nothing to do here \n");
 }
 
