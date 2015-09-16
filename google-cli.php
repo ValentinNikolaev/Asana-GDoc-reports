@@ -16,6 +16,10 @@ function log($message, $level = LOG_INFO, $status = false) {
     switch ($level) {
         case LOG_INFO:
             $prefix = "INFO";
+            break;
+        case LOG_ERR:
+            $prefix = "INFO";
+            break;
     }
 
     switch ($status) {
@@ -28,6 +32,14 @@ function log($message, $level = LOG_INFO, $status = false) {
         default:
             break;
     }
+}
+
+function logStatusFailure($message) {
+    log($message, LOG_WARNING, 0);
+}
+
+function logStatusSuccess($message) {
+    log($message, LOG_INFO, 1);
 }
 
 function closeSession() {
@@ -65,9 +77,9 @@ function getClient()
         $accessToken = $client->authenticate($authCode);
 
         if (file_put_contents($credentialsPath, $accessToken)) {
-            log("Credentials saved to $credentialsPath", LOG_INFO, 1);
+            logStatusSuccess("Credentials saved to $credentialsPath");
         } else {
-            log("Credentials saved to $credentialsPath", LOG_INFO, 0);
+            logStatusFailure("Credentials saved to $credentialsPath");
             closeSession();
         }
     }
@@ -76,6 +88,7 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
+        log("Token Expired");
         $client = refreshToken($client);
     }
     return $client;
@@ -85,9 +98,9 @@ function refreshToken($client) {
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
     if (file_put_contents($credentialsPath, $client->getAccessToken())) {
-        log("Refreshing Token", LOG_INFO, 1);
+        logStatusSuccess("Refreshing Token");
     } else {
-        log("Refreshing Token", LOG_INFO, 0);
+        logStatusFailure("Refreshing Token");
         closeSession();
     }
     return $client;
@@ -105,9 +118,10 @@ function downloadFile($service, $file)
 {
     $exportLinks = $file->getExportLinks();
     if (array_key_exists(GDOC_SHEET_MIME, $exportLinks)) {
+        logStatusSuccess("Get export link for a file $file->name");
         $downloadUrl = $exportLinks[GDOC_SHEET_MIME];
     } else {
-        printf("No export link for a sheet: " . colorizeCli("No export link for a file.", "FAILURE") . "\n");
+        logStatusFailure("Get export link for a file $file->name");
         return null;
     }
 
@@ -117,11 +131,11 @@ function downloadFile($service, $file)
         if ($httpRequest->getResponseHttpCode() == 200) {
             return $httpRequest->getResponseBody();
         } else {
-            printf("Download File: " . colorizeCli("An error occurred during file request.", "FAILURE") . "\n");
+            logStatusFailure("Download File $file->name");
             return null;
         }
     } else {
-        printf("Download File: " . colorizeCli("No export link for a file.", "FAILURE") . "\n");
+        logStatusFailure("Empty export link for a file $file->name");
         return null;
     }
 }
