@@ -16,10 +16,9 @@ global $emailConfig;
 $isCli = php_sapi_name() == "cli";
 $report = [
     '<br>',
-    '<h1><strong>Process report</h1></strong>',
 ];
 $log = [
-    'Process log:'
+    '<h1><strong>Process logs</h1></strong>',
 ];
 
 if (DEBUG) {

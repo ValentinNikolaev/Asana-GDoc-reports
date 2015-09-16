@@ -9,6 +9,11 @@ $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $templates = [];
 
+function reportMessage($message) {
+    global $report;
+    $report[] = $message;
+}
+
 function logMessage($message, $level = LOG_INFO, $logHasStatus = false) {
     global $isCli;
     $statusTxt = "";
@@ -61,8 +66,8 @@ function logMessage($message, $level = LOG_INFO, $logHasStatus = false) {
 function pushToLog($msg) {
     global $log;
     if (LOG_SHOW_DATETIME)
-        $msg = date(LOG_DATETIME_FORMAT)." ".$msg;
-    $log[] = $log;
+        $msg = "<strong>".date(LOG_DATETIME_FORMAT)."</strong>"." ".$msg;
+    $log[] = $msg;
 }
 
 function logError($message) {
@@ -79,12 +84,19 @@ function logStatusSuccess($message) {
 
 function closeSession() {
     logMessage("Close session");
-
+    sendAdminEmail(prepareEmailMessage());
     die;
+}
+
+function prepareEmailMessage() {
+    global $report, $log;
+//    var_dump($log + $report);die;
+    return implode("<br />", array_merge($report, ["<br><hr>"], $log));
 }
 
 function sendAdminEmail($messages) {
     global $emailConfig;
+    logMessage( 'Send email to '.EMAIL_ADMIN);
     $mail = new PHPMailer;
     $mail->isSMTP();                                      // Set mailer to use SMTP
     $mail->Host = $emailConfig['host'];  // Specify main and backup SMTP servers
@@ -95,18 +107,18 @@ function sendAdminEmail($messages) {
     $mail->Port = isset($emailConfig['port']) ? $emailConfig['port'] : 587;                                    // TCP port to connect to
 
     $mail->From = $emailConfig['from'];
-    $mail->FromName = $emailConfig['FromName'];
+    $mail->FromName = $emailConfig['fromName'];
     $mail->addAddress(EMAIL_ADMIN);     // Add a recipient
     $mail->isHTML(true);                                  // Set email format to HTML
 
-    $mail->Subject = $emailConfig['sublect'];
+    $mail->Subject = $emailConfig['subject'];
     $mail->Body    = $messages;
 
     if(!$mail->send()) {
-        log( 'Message could not be sent.');
-        log( 'Mailer Error: ' . $mail->ErrorInfo);
+        logMessage( 'Message could not be sent.');
+        logMessage( 'Mailer Error: ' . $mail->ErrorInfo);
     } else {
-        log( 'Message has been sent');
+        logMessage( 'Message has been sent');
     }
 }
 
@@ -907,8 +919,6 @@ if ($templates) {
     }
     logMessage("Set permissions for a report dir....");
     insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
-
-
     $startTasksDate = getStartTasksDate();
     logMessage("Processing Asana tasks....");
     logMessage("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
@@ -920,6 +930,7 @@ if ($templates) {
 
         foreach ($templates as $template) {
             logMessage("Processing Report template '$template' ");
+            reportMessage("<h1><strong>Reports:</strong></h1>");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
@@ -927,13 +938,15 @@ if ($templates) {
                     $fileReport = generateXlsReports($taskData, $template, $clientName);
 //                die;
                     if (file_exists($fileReport)) {
+                        reportMessage("<i>$clientName:</i>");
                         logMessage("Uploading report '" . basename($fileReport) . "' to google drive....\n");
+
                         $saveDir = $gProjectDir;
                         $foundProjectGDir = false;
                         $reportFolderName = $clientName;
 
                         $fileReportName = basename($fileReport);
-                          foreach ($gDirs as $dir) {
+                        foreach ($gDirs as $dir) {
                             if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
                                 $saveDir = $dir;
                                 $foundProjectGDir = true;
@@ -959,7 +972,8 @@ if ($templates) {
                         ];
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
                         logMessage("Sending file '" . $fileReportName . "' to google drive");
-                        insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
+                        $insertedFile = insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
+                        reportMessage("<a href='https://docs.google.com/spreadsheets/d/".$insertedFile->getId()."/edit' target='_blank'>".$insertedFile->getTitle()."</a>");
                     }
 //                }
 
@@ -967,7 +981,5 @@ if ($templates) {
         }
         closeSession();
     }
-
-
 }
 
