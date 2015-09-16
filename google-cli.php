@@ -161,7 +161,7 @@ function generateXlsReports($data, $fileName, $clientName)
     $tableCells = [];
     $dateReport = date('m/d/Y');
 
-    $styleArray = array(
+    /*$styleArray = array(
         'borders' => array(
             'allborders' => array(
                 'style' => PHPExcel_Style_Border::BORDER_THIN
@@ -170,7 +170,7 @@ function generateXlsReports($data, $fileName, $clientName)
         'alignment' => array(
             'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
         ),
-    );
+    );*/
 
     $th = [];
     $projectTitleCell = [];
@@ -275,8 +275,8 @@ function generateXlsReports($data, $fileName, $clientName)
                     $thCellAddress = $thCellColumn . $thCellRow;
                     $objPHPExcel->getActiveSheet()->setCellValue($thCellAddress, $thCell['cellValue']);
                     $objPHPExcel->getActiveSheet()->duplicateStyle($thCell['style'], $thCellAddress);
-                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->applyFromArray($styleArray);
-                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->getAlignment()->setWrapText(true);
+//                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->applyFromArray($styleArray);
+//                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->getAlignment()->setWrapText(true);
                 }
 
                 $tableStartCellRowLoop = $thCellRow + 1;
@@ -315,8 +315,8 @@ function generateXlsReports($data, $fileName, $clientName)
                     $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
                     if (isset($cell['style']))
                         $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
-                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
-                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
+//                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
+//                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
                     if ($url)
                         $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
                     $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
