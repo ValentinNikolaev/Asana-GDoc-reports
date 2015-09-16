@@ -14,8 +14,13 @@ global $isCli;
 global $emailConfig;
 
 $isCli = php_sapi_name() == "cli";
-$report = [];
-$log = [];
+$report = [
+    '<br>',
+    '<h1><strong>Process report</h1></strong>',
+];
+$log = [
+    'Process log:'
+];
 
 if (DEBUG) {
     ini_set('display_errors', 1);
