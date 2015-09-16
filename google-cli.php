@@ -14,14 +14,18 @@ function log($message, $level = LOG_INFO, $status = false) {
     $prefix = "";
     $statusTxt = "";
     switch ($level) {
+        default:
         case LOG_INFO:
             $prefix = "INFO";
+            $status = "NOTE";
             break;
         case LOG_ERR:
             $prefix = "ERROR";
+            $status = "FAILURE";
             break;
         case LOG_WARNING:
             $prefix = "WARN";
+            $status = "WARNING";
             break;
     }
 
@@ -35,6 +39,28 @@ function log($message, $level = LOG_INFO, $status = false) {
         default:
             break;
     }
+
+    if ($isCli) {
+        $showMessage = colorizeCli($prefix, $status).": ".$message;
+        $delimeter = "\n";
+    } else {
+        $showMessage = $prefix.": ".$message;
+        $delimeter = "<br>";
+    }
+
+    if ($status)
+        $showMessage .= "[STATUS: ".$statusTxt."]";
+    $showMessage .= $delimeter;
+    print($showMessage);
+    pushToLog($prefix.": ".$message);
+
+}
+
+function pushToLog($msg) {
+    global $log;
+    if (LOG_SHOW_DATETIME)
+        $msg = date(LOG_DATETIME_FORMAT)." ".$msg;
+    $log[] = $log;
 }
 
 function logError($message) {
@@ -51,6 +77,7 @@ function logStatusSuccess($message) {
 
 function closeSession() {
     log("Close session");
+
     die;
 }
 
