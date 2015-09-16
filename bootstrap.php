@@ -10,6 +10,7 @@ global $client;
 global $clientsProjects;
 global $log;
 global $isCli;
+global $emailConfig;
 
 $isCli = php_sapi_name() == "cli";
 

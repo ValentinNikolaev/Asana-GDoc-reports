@@ -24,6 +24,18 @@ $humanTags = [
     'qa' => 'testing',
 ];
 
+$emailConfig = array(
+    'from' => array('school@lifeisgoodlabs.com' => 'School Collector'),
+    'host' => 'smtp.sendgrid.net',
+    'port' => 587   ,
+    'username' => 'chris@ultimateblogsecurity.com',
+    'password' => 'u1timate',
+    'log' => true,
+//        'timeout' => 1,
+    'transport' => 'Smtp',
+    'tls' => true,
+);
+
 /**
  * clients and projects
  */
