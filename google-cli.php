@@ -138,6 +138,25 @@ function catchGoogleExceptions($e) {
     die;
 }
 
+function getMerged($address, $mergedCells) {
+    if ($mergedCells) {
+        $address = strtoupper($address);
+        foreach ($mergedCells as $mergedRange) {
+            if (strpos($mergedRange,':') !== false) {
+                // get the cells in the range
+                $aReferences = PHPExcel_Cell::extractAllCellReferencesInRange($mergedRange);
+                if ($aReferences)
+                    foreach ($aReferences as $aCell) {
+                        if ($aCell == $address)
+                            return prepareMergeRange($mergedRange);
+                    }
+            }
+        }
+    }
+
+    return [];
+}
+
 function prepareMergeRange($mergedRange) {
     $result = [];
     if (strpos($mergedRange,':') !== false) {
