@@ -138,6 +138,58 @@ function catchGoogleExceptions($e) {
     die;
 }
 
+function prepareMergeRange($mergedRange) {
+    $result = [];
+    if (strpos($mergedRange,':') !== false) {
+        $mergedRangeArray = explode(":", $mergedRange);
+
+        foreach ($mergedRangeArray as $key => $cellAddress) {
+            $cellAddressArray = str_split($cellAddress);
+            foreach ($cellAddressArray as $char) {
+                if ($key == 0) {
+                    $k = 'start';
+                } else {
+                    $k = 'end';
+                }
+//                echo ;
+
+                if (ctype_alpha($char)) {
+
+                    $k2 = 'column';
+                } else {
+                    $k2 = 'row';
+                }
+
+                if (!isset($result[$k]))
+                    $result[$k] = [];
+
+                if (!isset($result[$k][$k2]))
+                    $result[$k][$k2] = '';
+
+
+                if (!isset($result[$k]['column']))
+                    $result[$k][$k2] = $char;
+                else
+                    $result[$k][$k2] .= $char;
+            }
+
+        }
+
+    }
+
+    if ($result) {
+        if (!array_key_exists('start', $result) || !array_key_exists('end', $result))
+            return [];
+        foreach ($result as $c => $cData) {
+            if (!array_key_exists('column', $cData) || !array_key_exists('row', $cData))
+                return [];
+        }
+    }
+
+
+    return $result;
+}
+
 function generateXlsReports($data, $fileName, $clientName)
 {
     $alphas = range('A', 'Z');
