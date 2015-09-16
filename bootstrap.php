@@ -9,10 +9,13 @@ global $credentialsPath;
 global $client;
 global $clientsProjects;
 global $log;
+global $report;
 global $isCli;
 global $emailConfig;
 
 $isCli = php_sapi_name() == "cli";
+$report = [];
+$log = [];
 
 if (DEBUG) {
     ini_set('display_errors', 1);
