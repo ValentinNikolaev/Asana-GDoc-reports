@@ -9,6 +9,31 @@ $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $templates = [];
 
+function log($message, $level = LOG_INFO, $status = false) {
+    global $isCli;
+    $prefix = "";
+    $statusTxt = "";
+    switch ($level) {
+        case LOG_INFO:
+            $prefix = "INFO";
+    }
+
+    switch ($status) {
+        case 1:
+            $statusTxt = "SUCCESS";
+            break;
+        case 0:
+            $statusTxt = "FAILED";
+            break;
+        default:
+            break;
+    }
+}
+
+function closeSession() {
+    log("Close session");
+    die;
+}
 
 /**
  * Returns an authorized API client.
@@ -23,26 +48,27 @@ function getClient()
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
 
-
-
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
 
     } else {
         // Request authorization from the user.
+        log("Request authorization from the user");
         $authUrl = $client->createAuthUrl();
         printf("Open the following link in your browser:\n%s\n", $authUrl);
+
         print 'Enter verification code: ';
         $authCode = trim(fgets(STDIN));
+        log("Got auth Code $authCode");
 
         // Exchange authorization code for an access token.
         $accessToken = $client->authenticate($authCode);
 
         if (file_put_contents($credentialsPath, $accessToken)) {
-            printf("Credentials saved to %s: " . colorizeCli("SUCCESS", "SUCCESS") . "\n", $credentialsPath);
+            log("Credentials saved to $credentialsPath", LOG_INFO, 1);
         } else {
-            printf("Credentials saved to %s: " . colorizeCli("FAILED", "FAILURE") . "\n", $credentialsPath);
-            die;
+            log("Credentials saved to $credentialsPath", LOG_INFO, 0);
+            closeSession();
         }
     }
 
@@ -58,7 +84,12 @@ function getClient()
 function refreshToken($client) {
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
-    file_put_contents($credentialsPath, $client->getAccessToken());
+    if (file_put_contents($credentialsPath, $client->getAccessToken())) {
+        log("Refreshing Token", LOG_INFO, 1);
+    } else {
+        log("Refreshing Token", LOG_INFO, 0);
+        closeSession();
+    }
     return $client;
 
 }
