@@ -191,7 +191,7 @@ function generateXlsReports($data, $fileName, $clientName)
                     $projectTitleCell = [
                         'row' => $row,
                         'column' => $column,
-                        'style' => $sheet->getStyle($cellAddress)
+                        'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
                     ];
 //                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $data['project']->name);
                     break;
@@ -200,12 +200,12 @@ function generateXlsReports($data, $fileName, $clientName)
                         $tableStartCell = $cellAddress;
                     $tableCells[] = [
                         'key' => 'tags',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
                     ];
                     /** will work for one line th */
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1)),
+                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
                     ];
 
                     break;
@@ -214,11 +214,11 @@ function generateXlsReports($data, $fileName, $clientName)
                         $tableStartCell = $cellAddress;
                     $tableCells[] = [
                         'key' => 'completed',
-                        'style' => $sheet->getStyle($cellAddress)
+                        'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1)),
+                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
                     ];
                     break;
                 case '<notes>':
@@ -226,11 +226,11 @@ function generateXlsReports($data, $fileName, $clientName)
                         $tableStartCell = $cellAddress;
                     $tableCells[] = [
                         'key' => 'notes',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1)),
+                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
                     ];
                     break;
                 case '<link>':
@@ -238,11 +238,11 @@ function generateXlsReports($data, $fileName, $clientName)
                         $tableStartCell = $cellAddress;
                     $tableCells[] = [
                         'key' => 'link',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)
+                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
                     ];
                     $th[$column] = [
                         'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1)),
+                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
                     ];
                     break;
             }
