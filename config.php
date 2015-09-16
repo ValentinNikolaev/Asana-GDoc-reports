@@ -103,3 +103,6 @@ define('RESPONSE_PERSON', 'Eugene Pyvovarov');
 define('GDOC_REPORT_DIR_NAME', 'Reports');
 
 define("DATE_FORMAT_FNAME", "m_d_Y");
+
+define('LOG_SHOW_DATETIME', true);
+define('LOG_DATETIME_FORMAT', 'H:i:s');
