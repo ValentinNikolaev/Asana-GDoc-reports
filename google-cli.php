@@ -261,6 +261,7 @@ function generateXlsReports($data, $fileName, $clientName)
                     break;
                 case '<project_title>':
                     $projectTitleCell = [
+                        'merged' => getMerged($cellAddress, $mergedCells),
                         'row' => $row,
                         'column' => $column,
                         'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
@@ -341,6 +342,15 @@ function generateXlsReports($data, $fileName, $clientName)
                     $titleCell = $projectTitleCell['column'].($thCellRow - 1);
                     $objPHPExcel->getActiveSheet()->setCellValue($titleCell,$projectName);
                     $objPHPExcel->getActiveSheet()->duplicateStyle($projectTitleCell['style'], $titleCell);
+                    // @toDo add support multiline merge
+
+                    if ($projectTitleCell['merged']) {
+                        $sheet->mergeCells(
+                            $projectTitleCell['merged']['start']['column'] . ($thCellRow - 1).":".
+                            $projectTitleCell['merged']['end']['column'] . ($thCellRow - 1)
+                        );
+                    }
+                    $thCellRow++;
                 }
 
                 foreach ($th as $thCellColumn => $thCell) {
