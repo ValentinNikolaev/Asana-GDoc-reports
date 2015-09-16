@@ -9,9 +9,8 @@ $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $templates = [];
 
-function logMessage($message, $level = LOG_INFO, $status = false) {
+function logMessage($message, $level = LOG_INFO, $logHasStatus = false) {
     global $isCli;
-    $prefix = "";
     $statusTxt = "";
     switch ($level) {
         default:
@@ -29,16 +28,17 @@ function logMessage($message, $level = LOG_INFO, $status = false) {
             break;
     }
 
-    switch ($status) {
-        case 1:
-            $statusTxt = "SUCCESS";
-            break;
-        case 0:
-            $statusTxt = "FAILED";
-            break;
-        default:
-            break;
-    }
+    if ($logHasStatus !== false)
+        switch ($logHasStatus) {
+            case 1:
+                $statusTxt = "SUCCESS";
+                $statusColor = "SUCCESS";
+                break;
+            case 0:
+                $statusTxt = "FAILED";
+                $statusColor = "FAILURE";
+                break;
+        }
 
     if ($isCli) {
         $showMessage = colorizeCli($prefix, $status).": ".$message;
@@ -48,8 +48,10 @@ function logMessage($message, $level = LOG_INFO, $status = false) {
         $delimeter = "<br>";
     }
 
-    if ($status)
-        $showMessage .= "[STATUS: ".$statusTxt."]";
+    if ($statusTxt) {
+        $showMessage .= $isCli ? " [STATUS: ".colorizeCli($statusTxt, $statusColor)."]" : " [STATUS: ".$statusTxt."]";
+        $message .= " [STATUS: ".$statusTxt."]";
+    }
     $showMessage .= $delimeter;
     print($showMessage);
     pushToLog($prefix.": ".$message);
@@ -926,14 +928,14 @@ if ($templates) {
                             ]
                         ];
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
-                        logMessage("Insert file '" . $fileReportName . "' to google drive. Dir ".$saveDir->getId().".
-                        Mime: ".GDOC_SHEET_MIME.". Properties ".json_encode($properties)."....\n");
+                        logMessage("Sending file '" . $fileReportName . "' to google drive");
                         insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
                     }
 //                }
 
             }
         }
+        closeSession();
     }
 
 
