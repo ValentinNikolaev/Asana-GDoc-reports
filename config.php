@@ -25,7 +25,9 @@ $humanTags = [
 ];
 
 $emailConfig = array(
-    'from' => array('school@lifeisgoodlabs.com' => 'School Collector'),
+    'from' => 'noreply@reports-asana.com',
+    'fromName' => 'Asana Reports Sender',
+    'subject' => 'Asana Reports',
     'host' => 'smtp.sendgrid.net',
     'port' => 587   ,
     'username' => 'chris@ultimateblogsecurity.com',
@@ -118,3 +120,5 @@ define("DATE_FORMAT_FNAME", "m_d_Y");
 
 define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
+
+define('EMAIL_ADMIN', 'tierwerwolf@gmail.com');

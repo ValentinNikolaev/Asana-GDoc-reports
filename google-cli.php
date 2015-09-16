@@ -83,6 +83,33 @@ function closeSession() {
     die;
 }
 
+function sendAdminEmail($messages) {
+    global $emailConfig;
+    $mail = new PHPMailer;
+    $mail->isSMTP();                                      // Set mailer to use SMTP
+    $mail->Host = $emailConfig['host'];  // Specify main and backup SMTP servers
+    $mail->SMTPAuth = true;                               // Enable SMTP authentication
+    $mail->Username = $emailConfig['username'];              // SMTP username
+    $mail->Password = $emailConfig['password'];                           // SMTP password
+    $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
+    $mail->Port = isset($emailConfig['port']) ? $emailConfig['port'] : 587;                                    // TCP port to connect to
+
+    $mail->From = $emailConfig['from'];
+    $mail->FromName = $emailConfig['FromName'];
+    $mail->addAddress(EMAIL_ADMIN);     // Add a recipient
+    $mail->isHTML(true);                                  // Set email format to HTML
+
+    $mail->Subject = $emailConfig['sublect'];
+    $mail->Body    = $messages;
+
+    if(!$mail->send()) {
+        log( 'Message could not be sent.');
+        log( 'Mailer Error: ' . $mail->ErrorInfo);
+    } else {
+        log( 'Message has been sent');
+    }
+}
+
 /**
  * Returns an authorized API client.
  * @return Google_Client the authorized client object
@@ -292,209 +319,212 @@ function prepareMergeRange($mergedRange) {
 
 function generateXlsReports($data, $fileName, $clientName)
 {
-    $alphas = range('A', 'Z');
-    $highestRowBoard = 50;
-    logMessage("Start making of the report for client " .$clientName);
-    $objReader = PHPExcel_IOFactory::createReader('Excel2007');
-    $objPHPExcel = $objReader->load($fileName);// Change the file
-    // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-    $objPHPExcel->setActiveSheetIndex(0);
-    $sheet = $objPHPExcel->getActiveSheet();
-    $highestRow = $sheet->getHighestRow();
-    /*$highestColumn = $sheet->getHighestColumn();
-    if (!in_array($highestColumn, $alphas)) {
-        printf(colorizeCli("FAILED:", "FAILURE") . 'Too many columns in a template. Highest Column %s \n', $highestColumn);
-        return;
-    }*/
+    try {
+        $alphas = range('A', 'Z');
+        $highestRowBoard = 50;
+        logMessage("Start making of the report for client " . $clientName);
+        $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+        $objPHPExcel = $objReader->load($fileName);// Change the file
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+        $sheet = $objPHPExcel->getActiveSheet();
+        $highestRow = $sheet->getHighestRow();
+        /*$highestColumn = $sheet->getHighestColumn();
+        if (!in_array($highestColumn, $alphas)) {
+            printf(colorizeCli("FAILED:", "FAILURE") . 'Too many columns in a template. Highest Column %s \n', $highestColumn);
+            return;
+        }*/
 
-    $mergedCells = $objPHPExcel->getActiveSheet()->getMergeCells();
-    $highestRow = $highestRow > $highestRowBoard ? $highestRowBoard : $highestRow;
+        $mergedCells = $objPHPExcel->getActiveSheet()->getMergeCells();
+        $highestRow = $highestRow > $highestRowBoard ? $highestRowBoard : $highestRow;
 
-    $tableStartCell = '';
-    $tableCells = [];
-    $dateReport = date('m/d/Y');
+        $tableStartCell = '';
+        $tableCells = [];
+        $dateReport = date('m/d/Y');
 
-    /*$styleArray = array(
-        'borders' => array(
-            'allborders' => array(
-                'style' => PHPExcel_Style_Border::BORDER_THIN
-            )
-        ),
-        'alignment' => array(
-            'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
-        ),
-    );*/
+        /*$styleArray = array(
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            ),
+            'alignment' => array(
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+            ),
+        );*/
 
-    $th = [];
-    $projectTitleCell = [];
+        $th = [];
+        $projectTitleCell = [];
 
-    /** try to find meta tags */
-    for ($row = 1; $row <= $highestRow; $row++) {
-        foreach ($alphas as $column) {
-            $cellAddress = $column . $row;
-            $cellValue = trim($sheet->getCell($cellAddress)->getFormattedValue());
-            switch ($cellValue) {
-                case '<date>':
-                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $dateReport);
-                    break;
-                case '<person>':
-                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, RESPONSE_PERSON);
-                    break;
-                case '<project_title>':
-                    $projectTitleCell = [
-                        'merged' => getMerged($cellAddress, $mergedCells),
-                        'row' => $row,
-                        'column' => $column,
-                        'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
-                    ];
+        /** try to find meta tags */
+        for ($row = 1; $row <= $highestRow; $row++) {
+            foreach ($alphas as $column) {
+                $cellAddress = $column . $row;
+                $cellValue = trim($sheet->getCell($cellAddress)->getFormattedValue());
+                switch ($cellValue) {
+                    case '<date>':
+                        $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $dateReport);
+                        break;
+                    case '<person>':
+                        $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, RESPONSE_PERSON);
+                        break;
+                    case '<project_title>':
+                        $projectTitleCell = [
+                            'merged' => getMerged($cellAddress, $mergedCells),
+                            'row' => $row,
+                            'column' => $column,
+                            'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
+                        ];
 //                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $data['project']->name);
-                    break;
-                case '<task_type>':
-                    if (!$tableStartCell)
-                        $tableStartCell = $cellAddress;
-                    $tableCells[] = [
-                        'key' => 'tags',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
-                    ];
-                    /** will work for one line th */
-                    $th[$column] = [
-                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
-                    ];
+                        break;
+                    case '<task_type>':
+                        if (!$tableStartCell)
+                            $tableStartCell = $cellAddress;
+                        $tableCells[] = [
+                            'key' => 'tags',
+                            'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
+                        ];
+                        /** will work for one line th */
+                        $th[$column] = [
+                            'cellValue' => $sheet->getCell($column . ($row - 1))->getFormattedValue(),
+                            'style' => $sheet->getStyle($column . ($row - 1))->getSharedComponent(),
+                        ];
 
-                    break;
-                case '<task_completed>':
-                    if (!$tableStartCell)
-                        $tableStartCell = $cellAddress;
-                    $tableCells[] = [
-                        'key' => 'completed',
-                        'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
-                    ];
-                    $th[$column] = [
-                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
-                    ];
-                    break;
-                case '<notes>':
-                    if (!$tableStartCell)
-                        $tableStartCell = $cellAddress;
-                    $tableCells[] = [
-                        'key' => 'notes',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
-                    ];
-                    $th[$column] = [
-                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
-                    ];
-                    break;
-                case '<link>':
-                    if (!$tableStartCell)
-                        $tableStartCell = $cellAddress;
-                    $tableCells[] = [
-                        'key' => 'link',
-                        'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
-                    ];
-                    $th[$column] = [
-                        'cellValue' => $sheet->getCell($column.($row-1))->getFormattedValue(),
-                        'style' => $sheet->getStyle($column.($row-1))->getSharedComponent(),
-                    ];
-                    break;
+                        break;
+                    case '<task_completed>':
+                        if (!$tableStartCell)
+                            $tableStartCell = $cellAddress;
+                        $tableCells[] = [
+                            'key' => 'completed',
+                            'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
+                        ];
+                        $th[$column] = [
+                            'cellValue' => $sheet->getCell($column . ($row - 1))->getFormattedValue(),
+                            'style' => $sheet->getStyle($column . ($row - 1))->getSharedComponent(),
+                        ];
+                        break;
+                    case '<notes>':
+                        if (!$tableStartCell)
+                            $tableStartCell = $cellAddress;
+                        $tableCells[] = [
+                            'key' => 'notes',
+                            'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
+                        ];
+                        $th[$column] = [
+                            'cellValue' => $sheet->getCell($column . ($row - 1))->getFormattedValue(),
+                            'style' => $sheet->getStyle($column . ($row - 1))->getSharedComponent(),
+                        ];
+                        break;
+                    case '<link>':
+                        if (!$tableStartCell)
+                            $tableStartCell = $cellAddress;
+                        $tableCells[] = [
+                            'key' => 'link',
+                            'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
+                        ];
+                        $th[$column] = [
+                            'cellValue' => $sheet->getCell($column . ($row - 1))->getFormattedValue(),
+                            'style' => $sheet->getStyle($column . ($row - 1))->getSharedComponent(),
+                        ];
+                        break;
+                }
             }
         }
-    }
 
-    /**
-     * loop tasks
-     */
-    if ($tableStartCell) {
-        $tableStartCellColumn = $tableStartCell[0];
-        $tableStartCellRow = substr($tableStartCell, 1);
-        $tableStartCellRowLoop = $tableStartCellRow;
-        $projectsCounter = 0;
-        foreach ($data as $projectId => $projectData) {
-            $projectsCounter++;
+        /**
+         * loop tasks
+         */
+        if ($tableStartCell) {
+            $tableStartCellColumn = $tableStartCell[0];
+            $tableStartCellRow = substr($tableStartCell, 1);
+            $tableStartCellRowLoop = $tableStartCellRow;
+            $projectsCounter = 0;
+            foreach ($data as $projectId => $projectData) {
+                $projectsCounter++;
 //            var_dump(array_keys($projectData));
-            $projectName = isset($projectData['project']) ? $projectData['project']->name : 'Project';
+                $projectName = isset($projectData['project']) ? $projectData['project']->name : 'Project';
 
-            if ($projectsCounter > 1 && $th) {
-                $thCellRow = $tableStartCellRowLoop + 3;
+                if ($projectsCounter > 1 && $th) {
+                    $thCellRow = $tableStartCellRowLoop + 3;
 
-                if ($projectTitleCell) {
-                    $titleCell = $projectTitleCell['column'].($thCellRow - 1);
-                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell,$projectName);
-                    $objPHPExcel->getActiveSheet()->duplicateStyle($projectTitleCell['style'], $titleCell);
-                    // @toDo add support multiline merge
+                    if ($projectTitleCell) {
+                        $titleCell = $projectTitleCell['column'] . ($thCellRow - 1);
+                        $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectName);
+                        $objPHPExcel->getActiveSheet()->duplicateStyle($projectTitleCell['style'], $titleCell);
+                        // @toDo add support multiline merge
 
-                    if ($projectTitleCell['merged']) {
-                        $sheet->mergeCells(
-                            $projectTitleCell['merged']['start']['column'] . ($thCellRow - 1).":".
-                            $projectTitleCell['merged']['end']['column'] . ($thCellRow - 1)
-                        );
+                        if ($projectTitleCell['merged']) {
+                            $sheet->mergeCells(
+                                $projectTitleCell['merged']['start']['column'] . ($thCellRow - 1) . ":" .
+                                $projectTitleCell['merged']['end']['column'] . ($thCellRow - 1)
+                            );
+                        }
+                        $thCellRow++;
                     }
-                    $thCellRow++;
-                }
 
-                foreach ($th as $thCellColumn => $thCell) {
-                    $thCellAddress = $thCellColumn . $thCellRow;
-                    $objPHPExcel->getActiveSheet()->setCellValue($thCellAddress, $thCell['cellValue']);
-                    $objPHPExcel->getActiveSheet()->duplicateStyle($thCell['style'], $thCellAddress);
+                    foreach ($th as $thCellColumn => $thCell) {
+                        $thCellAddress = $thCellColumn . $thCellRow;
+                        $objPHPExcel->getActiveSheet()->setCellValue($thCellAddress, $thCell['cellValue']);
+                        $objPHPExcel->getActiveSheet()->duplicateStyle($thCell['style'], $thCellAddress);
 //                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->applyFromArray($styleArray);
 //                    $objPHPExcel->getActiveSheet()->getStyle($thCellAddress)->getAlignment()->setWrapText(true);
-                }
-
-                $tableStartCellRowLoop = $thCellRow + 1;
-            } else {
-                if ($projectTitleCell) {
-                    $titleCell = $projectTitleCell['column'].$projectTitleCell['row'];
-                    $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectName);
-
-                }
-
-            }
-
-
-
-            foreach ($projectData['tasks'] as $key => $task) {
-                $tableStartCellColumnLoop = $tableStartCellColumn;
-
-                foreach ($tableCells as $cell) {
-                    $tableCellAddress = $tableStartCellColumnLoop . $tableStartCellRowLoop;
-                    $value = '';
-                    $url = false;
-                    $tplCell = $cell['key'];
-                    if (isset($task[$tplCell])) {
-                        if (is_array($task[$tplCell])) {
-                            if (isset($task[$tplCell]['title']))
-                                $value = $task[$tplCell]['title'];
-                            if (isset($task[$tplCell]['url']))
-                                $url = $task[$tplCell]['url'];
-                        } else {
-                            $value = $task[$tplCell];
-                        }
-
-                    } else {
-                        $value = '';
                     }
-                    $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
-                    if (isset($cell['style']))
-                        $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
+
+                    $tableStartCellRowLoop = $thCellRow + 1;
+                } else {
+                    if ($projectTitleCell) {
+                        $titleCell = $projectTitleCell['column'] . $projectTitleCell['row'];
+                        $objPHPExcel->getActiveSheet()->setCellValue($titleCell, $projectName);
+
+                    }
+
+                }
+
+
+                foreach ($projectData['tasks'] as $key => $task) {
+                    $tableStartCellColumnLoop = $tableStartCellColumn;
+
+                    foreach ($tableCells as $cell) {
+                        $tableCellAddress = $tableStartCellColumnLoop . $tableStartCellRowLoop;
+                        $value = '';
+                        $url = false;
+                        $tplCell = $cell['key'];
+                        if (isset($task[$tplCell])) {
+                            if (is_array($task[$tplCell])) {
+                                if (isset($task[$tplCell]['title']))
+                                    $value = $task[$tplCell]['title'];
+                                if (isset($task[$tplCell]['url']))
+                                    $url = $task[$tplCell]['url'];
+                            } else {
+                                $value = $task[$tplCell];
+                            }
+
+                        } else {
+                            $value = '';
+                        }
+                        $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
+                        if (isset($cell['style']))
+                            $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
 //                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
 //                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
-                    if ($url)
-                        $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
-                    $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
+                        if ($url)
+                            $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
+                        $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
+                    }
+                    $tableStartCellRowLoop = $tableStartCellRow + $key;
                 }
-                $tableStartCellRowLoop = $tableStartCellRow + $key;
             }
         }
-    }
 
-    $folder = createProjectReportDir($clientName);
-    $fileName = $clientName . " " . date(DATE_FORMAT_FNAME) . ".xls";
-    $fileReport = $folder . $fileName;
-    logMessage("Saving report to $fileReport ...");
-    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-    $objWriter->save($fileReport);
+        $folder = createProjectReportDir($clientName);
+        $fileName = $clientName . " " . date(DATE_FORMAT_FNAME) . ".xls";
+        $fileReport = $folder . $fileName;
+        logMessage("Saving report to $fileReport ...");
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save($fileReport);
+    } catch (Exception $e) {
+        catchGoogleExceptions($e);
+    }
     return $fileReport;
 }
 
