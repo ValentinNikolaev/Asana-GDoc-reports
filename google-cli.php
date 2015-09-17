@@ -957,7 +957,7 @@ if ($templates) {
                         }
 
                         if (!$foundProjectGDir) {
-                            logMessage("Create GDrive folder for project '" . $reportFolderNam);
+                            logMessage("Create GDrive folder for project '" . $reportFolderName);
                             $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
                         }
                         $properties = [
