@@ -152,6 +152,7 @@ function getClient()
         $accessToken = $client->authenticate($authCode);
 
         if (file_put_contents($credentialsPath, $accessToken)) {
+//            chown($credentialsPath, 'www-data');
             logStatusSuccess("Credentials saved to $credentialsPath");
         } else {
             logStatusFailure("Credentials saved to $credentialsPath");
@@ -173,6 +174,7 @@ function refreshToken($client) {
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
     if (file_put_contents($credentialsPath, $client->getAccessToken())) {
+//        chown($credentialsPath, 'www-dataa');
         logStatusSuccess("Refreshing Token");
     } else {
         logStatusFailure("Refreshing Token");
@@ -931,6 +933,7 @@ if ($templates) {
         foreach ($templates as $template) {
             logMessage("Processing Report template '$template' ");
             reportMessage("<h1><strong>Reports:</strong></h1>");
+            reportMessage("<a href='http://$_SERVER[HTTP_HOST]/google-serverside.php'><strong>Make report drafts!:</strong></a>");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
