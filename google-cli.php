@@ -905,7 +905,7 @@ if ($templates) {
     $gDirs = retrieveFiles($service, true);
 
     if (count($gDirs) == 0) {
-        log ("No folders were found");
+        logMessage("No folders were found");
 
     } else {
         foreach ($gDirs as $dir) {
