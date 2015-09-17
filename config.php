@@ -121,5 +121,5 @@ define("DATE_FORMAT_FNAME", "m_d_Y");
 define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
 
-define('EMAIL_ADMIN', 'tierwerwolf@gmail.com');
-define('BASE_SERVER', 'http://46.101.42.18/agdoc/');
+define('EMAIL_ADMIN', 'mailto:eugene@lifeisgoodlabs.com');
+define('BASE_SERVER', '46.101.42.18/agdoc/');
