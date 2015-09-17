@@ -122,3 +122,4 @@ define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
 
 define('EMAIL_ADMIN', 'tierwerwolf@gmail.com');
+define('BASE_SERVER', 'http://46.101.42.18/agdoc/');

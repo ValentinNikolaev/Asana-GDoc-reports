@@ -933,7 +933,7 @@ if ($templates) {
         foreach ($templates as $template) {
             logMessage("Processing Report template '$template' ");
             reportMessage("<h1><strong>Reports:</strong></h1>");
-            reportMessage("<a href='http://$_SERVER[HTTP_HOST]/google-serverside.php'><strong>Make report drafts!:</strong></a>");
+            reportMessage("<h2><a href='http://".BASE_SERVER."/google-serverside.php'><strong>Make report drafts!</strong></a><h2><br>");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
@@ -941,7 +941,7 @@ if ($templates) {
                     $fileReport = generateXlsReports($taskData, $template, $clientName);
 //                die;
                     if (file_exists($fileReport)) {
-                        reportMessage("<i>$clientName:</i>");
+                        reportMessage("<br><i>$clientName:</i>");
                         logMessage("Uploading report '" . basename($fileReport) . "' to google drive....\n");
 
                         $saveDir = $gProjectDir;
