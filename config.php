@@ -109,6 +109,7 @@ define('GDOC_PDF_MIME', 'application/pdf');
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', __DIR__.'/credentials/drive-api-asana-gdoc-cli.json');
 define('CREDENTIALS_PATH_PHP',/* __DIR__.'/credentials/drive-api-asana-gdoc.json'*/CREDENTIALS_PATH);
+
 define('TMP_PATH', __DIR__.'/tmp/');
 define('REPORTS_PATH', __DIR__.'/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
@@ -121,5 +122,7 @@ define("DATE_FORMAT_FNAME", "m_d_Y");
 define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
 
-define('EMAIL_ADMIN', 'eugene@lifeisgoodlabs.com');
+//define('EMAIL_ADMIN', 'eugene@lifeisgoodlabs.com');
+define('EMAIL_ADMIN', 'valenti.nikolaev@gmail.com');
+
 define('BASE_SERVER', '46.101.42.18/agdoc/');
