@@ -8,5 +8,18 @@ sudo chown -R www-data:www-data credentials/
 2. Go via link and copy access code
 3. Insert code at Cli
 
+# Cli options
+
+Usage: google-cli.php [options] [operands]
+
+Options:
+
+  -r, --refresh_token     Refresh token if exists
+  
+  -d, --remove            Remove credentials to authorize new user
+  
+  -v, --version           Display version information
+
 # Send drafts
 1. To get latest report list, run google-serverside.php from browser
+
