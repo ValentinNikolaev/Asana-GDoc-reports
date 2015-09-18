@@ -3,6 +3,28 @@
 require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/helper.php';
 //require __DIR__ . '/asana.php';
+use Ulrichsg\Getopt\Getopt;
+use Ulrichsg\Getopt\Option;
+
+$getopt = new Getopt(array(
+    new Option('r', 'refresh_token'),
+    new Option('d', 'remove'),
+    (new Option('v', 'version', Getopt::NO_ARGUMENT))->setDescription('Display version information')
+));
+
+try {
+    $getopt->parse();
+    if ($getopt->getOption('v')) {
+        echo VERSION."\n";
+        exit(1);
+    }
+
+} catch (UnexpectedValueException $e) {
+    echo "Error: ".$e->getMessage()."\n";
+    echo $getopt->getHelpText();
+    exit(1);
+}
+
 
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
@@ -121,6 +143,7 @@ function sendAdminEmail($messages) {
         logMessage( 'Message has been sent');
     }
 }
+
 
 /**
  * Returns an authorized API client.
