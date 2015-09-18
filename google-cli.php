@@ -9,8 +9,8 @@ use Ulrichsg\Getopt\Option;
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
 
 $getopt = new Getopt(array(
-    new Option('r', 'refresh_token'),
-    new Option('d', 'remove'),
+    (new Option('r', 'refresh_token'))->setDescription('Refresh token if exists'),
+    (new Option('d', 'remove'))->setDescription('Remove credentials to authorize new user'),
     (new Option('v', 'version', Getopt::NO_ARGUMENT))->setDescription('Display version information')
 ));
 
@@ -23,6 +23,11 @@ try {
 
     if ($getopt->getOption('refresh_token')) {
         refreshTokenCli();
+        closeSession(false);
+    }
+
+    if ($getopt->getOption('remove')) {
+        removeCredentials();
         closeSession(false);
     }
 
@@ -216,7 +221,19 @@ function refreshTokenCli() {
         closeSession(false);
     }
     refreshToken($client);
+}
 
+function removeCredentials() {
+    global $credentialsPath;
+    if (is_file($credentialsPath))
+    {
+        if (unlink($credentialsPath))
+            logStatusSuccess("Credentials deleted");
+        else
+            logStatusSuccess("Credentials deleted");
+    } else {
+        logStatusFailure($credentialsPath." exists");
+    }
 }
 
 function refreshToken($client) {
