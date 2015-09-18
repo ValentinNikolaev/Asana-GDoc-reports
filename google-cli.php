@@ -6,6 +6,8 @@ require __DIR__ . '/helper.php';
 use Ulrichsg\Getopt\Getopt;
 use Ulrichsg\Getopt\Option;
 
+$credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
+
 $getopt = new Getopt(array(
     new Option('r', 'refresh_token'),
     new Option('d', 'remove'),
@@ -15,8 +17,13 @@ $getopt = new Getopt(array(
 try {
     $getopt->parse();
     if ($getopt->getOption('v')) {
-        echo VERSION."\n";
-        exit(1);
+        logMessage(VERSION);
+        closeSession(false);
+    }
+
+    if ($getopt->getOption('refresh_token')) {
+        refreshTokenCli();
+        closeSession(false);
     }
 
 } catch (UnexpectedValueException $e) {
@@ -27,7 +34,7 @@ try {
 
 
 // Load previously authorized credentials from a file.
-$credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
+
 
 $templates = [];
 
@@ -104,9 +111,10 @@ function logStatusSuccess($message) {
     logMessage($message, LOG_INFO, 1);
 }
 
-function closeSession() {
+function closeSession($sendMail = true) {
     logMessage("Close session");
-    sendAdminEmail(prepareEmailMessage());
+    if ($sendMail)
+        sendAdminEmail(prepareEmailMessage());
     die;
 }
 
@@ -193,6 +201,24 @@ function getClient()
     return $client;
 }
 
+function refreshTokenCli() {
+    global $credentialsPath;
+    $client = new Google_Client();
+    $client->setApplicationName(APPLICATION_NAME);
+    $client->setScopes(GAPI_SCOPES);
+    $client->setAuthConfigFile(CLIENT_SECRET_PATH);
+    $client->setAccessType('offline');
+    if (file_exists($credentialsPath)) {
+        $accessToken = file_get_contents($credentialsPath);
+        $client->setAccessToken($accessToken);
+    } else {
+        logStatusFailure($credentialsPath." exists");
+        closeSession(false);
+    }
+    refreshToken($client);
+
+}
+
 function refreshToken($client) {
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
@@ -201,7 +227,7 @@ function refreshToken($client) {
         logStatusSuccess("Refreshing Token");
     } else {
         logStatusFailure("Refreshing Token");
-        closeSession();
+        closeSession(false);
     }
     return $client;
 
