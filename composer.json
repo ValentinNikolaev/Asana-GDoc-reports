@@ -14,7 +14,8 @@
     "google/apiclient": "1.*",
     "phpoffice/phpexcel": "1.*",
     "phpmailer/phpmailer": "~5.2",
-    "ulrichsg/getopt-php": "2.3.*"
+    "ulrichsg/getopt-php": "2.3.*",
+    "slim/slim":"~2.0"
   }
 
 }
