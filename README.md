@@ -1,3 +1,6 @@
+# notes
+master branch is for test only. Check v2 branch for updates.
+
 # setup
 mkdir -m 755 credentials && mkdir -m 755 reports && mkdir -m 755 tmp
 sudo chown -R www-data:www-data credentials/
