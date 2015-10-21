@@ -38,7 +38,8 @@ function getClient()
         if ($authCode) {
             // Exchange authorization code for an access token.
             $accessToken = $client->authenticate($authCode);
-
+            var_dump($credentialsPath);
+            chmod(dirname($credentialsPath), 0777);
             if (file_put_contents($credentialsPath, $accessToken)) {
                 printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "<br>", $credentialsPath);
             } else {
@@ -63,5 +64,7 @@ function getClient()
     return $client;
 }
 
-
+if (!is_writable(dirname($credentialsPath))) {
+    echo "<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>";
+} else
 $client = getClient();
