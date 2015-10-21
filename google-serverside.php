@@ -63,13 +63,7 @@ function getClient()
     return $client;
 }
 
-function refreshToken($client)
-{
-    global $credentialsPath;
-    $client->refreshToken($client->getRefreshToken());
-    file_put_contents($credentialsPath, $client->getAccessToken());
-    return $client;
-}
+
 
 
 function catchGoogleExceptions($e)

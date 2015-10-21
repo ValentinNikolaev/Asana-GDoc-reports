@@ -232,3 +232,11 @@ function sendAdminEmail($messages) {
         logMessage( 'Message has been sent');
     }
 }
+
+function refreshToken(Google_Client $client)
+{
+    global $credentialsPath;
+    $client->refreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, $client->getAccessToken());
+    return $client;
+}
