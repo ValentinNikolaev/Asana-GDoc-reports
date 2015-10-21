@@ -51,37 +51,46 @@ $templates = [];
  * Returns an authorized API client.
  * @return Google_Client the authorized client object
  */
+/**
+ * Returns an authorized API client.
+ * @return Google_Client the authorized client object
+ */
 function getClient()
 {
-    global $credentialsPath, $client;
+    global $credentialsPath;
     $client = new Google_Client();
     $client->setApplicationName(APPLICATION_NAME);
     $client->setScopes(GAPI_SCOPES);
     $client->setAuthConfigFile(CLIENT_SECRET_PATH);
     $client->setAccessType('offline');
 
+
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
-
     } else {
-        // Request authorization from the user.
-        logMessage("Request authorization from the user");
         $authUrl = $client->createAuthUrl();
-        printf("Open the following link in your browser:\n%s\n", $authUrl);
+        $authCode = false;
+        if (isset($_POST['authCode']) && $_POST['authCode']) {
+            $authCode = $_POST['authCode'];
+        }
 
-        print 'Enter verification code: ';
-        $authCode = trim(fgets(STDIN));
-        logMessage("Got auth Code $authCode");
+        if (!$authCode) {
+            printf("Open the following link in your browser:\n<a href='%s' target='_blank'>link</a>\n", $authUrl);
+            echo "<form method='post'><input name='authCode'><input type='submit' name='Check auth code'></form>";
+        }
 
-        // Exchange authorization code for an access token.
-        $accessToken = $client->authenticate($authCode);
+        if ($authCode) {
+            // Exchange authorization code for an access token.
+            $accessToken = $client->authenticate($authCode);
 
-        if (file_put_contents($credentialsPath, $accessToken)) {
-//            chown($credentialsPath, 'www-data');
-            logStatusSuccess("Credentials saved to $credentialsPath");
+            if (file_put_contents($credentialsPath, $accessToken)) {
+                printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "<br>", $credentialsPath);
+            } else {
+                printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "<br>", $credentialsPath);
+                die;
+            }
         } else {
-            logStatusFailure("Credentials saved to $credentialsPath");
-            closeSession();
+            die("No authCode. Try again.");
         }
     }
 
@@ -89,9 +98,9 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
-        logMessage("Token Expired");
         $client = refreshToken($client);
     }
+
     return $client;
 }
 
