@@ -21,6 +21,18 @@ function expandHomeDirectory($path)
  * @return string
  * @throws Exception
  */
+function colorize($text, $status)
+{
+    return $text;
+}
+
+/**
+ * Colorize Console text
+ * @param $text
+ * @param $status
+ * @return string
+ * @throws Exception
+ */
 function colorizeCli($text, $status)
 {
     $out = "";
