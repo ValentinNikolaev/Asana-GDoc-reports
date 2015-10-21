@@ -46,7 +46,7 @@ function getClient()
                 die;
             }
         } else {
-            die("No authCode. Try again.");
+            die("No authCode");
         }
     }
 
@@ -54,8 +54,14 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
+        echo "Token is Expired. Trying to refresh.. <br>";
         $client = refreshToken($client);
+    } else {
+        echo "Everything fine<br>";
     }
 
     return $client;
 }
+
+
+$client = getClient();
