@@ -33,6 +33,7 @@ function getClient()
         if (!$authCode) {
             printf("Open the following link in your browser:\n<a href='%s' target='_blank'>link</a>\n", $authUrl);
             echo "<form method='post'><input name='authCode'><input type='submit' name='Check auth code'></form>";
+            die;
         }
 
         if ($authCode) {
@@ -64,5 +65,10 @@ function getClient()
 
 if (!is_writable(dirname($credentialsPath))) {
     echo "<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>";
-} else
-$client = getClient();
+} else {
+    $client = getClient();
+    $user = 'me';
+    $service = new Google_Service_Gmail($client);
+    echo 'Current account: '.$service->users->getProfile('me')->emailAddress;
+
+}
