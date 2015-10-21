@@ -58,27 +58,9 @@ function getClient()
 
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
-
     } else {
-        // Request authorization from the user.
-        logMessage("Request authorization from the user");
-        $authUrl = $client->createAuthUrl();
-        printf("Open the following link in your browser:\n%s\n", $authUrl);
-
-        print 'Enter verification code: ';
-        $authCode = trim(fgets(STDIN));
-        logMessage("Got auth Code $authCode");
-
-        // Exchange authorization code for an access token.
-        $accessToken = $client->authenticate($authCode);
-
-        if (file_put_contents($credentialsPath, $accessToken)) {
-//            chown($credentialsPath, 'www-data');
-            logStatusSuccess("Credentials saved to $credentialsPath");
-        } else {
-            logStatusFailure("Credentials saved to $credentialsPath");
-            closeSession();
-        }
+        logStatusFailure("Please, get token via connect.php");
+        closeSession();
     }
 
     $client->setAccessToken($accessToken);

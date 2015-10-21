@@ -27,30 +27,7 @@ function getClient()
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
     } else {
-        $authUrl = $client->createAuthUrl();
-        $authCode = false;
-        if (isset($_POST['authCode']) && $_POST['authCode']) {
-            $authCode = $_POST['authCode'];
-        }
-
-        if (!$authCode) {
-            printf("Open the following link in your browser:\n<a href='%s' target='_blank'>link</a>\n", $authUrl);
-            echo "<form method='post'><input name='authCode'><input type='submit' name='Check auth code'></form>";
-        }
-
-        if ($authCode) {
-            // Exchange authorization code for an access token.
-            $accessToken = $client->authenticate($authCode);
-
-            if (file_put_contents($credentialsPath, $accessToken)) {
-                printf("Credentials saved to %s: " . colorize("SUCCESS", "SUCCESS") . "<br>", $credentialsPath);
-            } else {
-                printf("Credentials saved to %s: " . colorize("FAILED", "FAILURE") . "<br>", $credentialsPath);
-                die;
-            }
-        } else {
-            die("No authCode. Try again.");
-        }
+        die("Please, get token via connect.php");
     }
 
     $client->setAccessToken($accessToken);
