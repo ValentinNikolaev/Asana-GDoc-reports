@@ -203,3 +203,32 @@ function prepareEmailMessage() {
     return implode("<br />", array_merge($report, ["<br><hr>"], $log));
 }
 
+
+
+function sendAdminEmail($messages) {
+    global $emailConfig;
+    logMessage( 'Send email to '.EMAIL_ADMIN);
+    $mail = new PHPMailer;
+    $mail->isSMTP();                                      // Set mailer to use SMTP
+    $mail->Host = $emailConfig['host'];  // Specify main and backup SMTP servers
+    $mail->SMTPAuth = true;                               // Enable SMTP authentication
+    $mail->Username = $emailConfig['username'];              // SMTP username
+    $mail->Password = $emailConfig['password'];                           // SMTP password
+    $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
+    $mail->Port = isset($emailConfig['port']) ? $emailConfig['port'] : 587;                                    // TCP port to connect to
+
+    $mail->From = $emailConfig['from'];
+    $mail->FromName = $emailConfig['fromName'];
+    $mail->addAddress(EMAIL_ADMIN);     // Add a recipient
+    $mail->isHTML(true);                                  // Set email format to HTML
+
+    $mail->Subject = $emailConfig['subject'];
+    $mail->Body    = $messages;
+
+    if(!$mail->send()) {
+        logMessage( 'Message could not be sent.');
+        logMessage( 'Mailer Error: ' . $mail->ErrorInfo);
+    } else {
+        logMessage( 'Message has been sent');
+    }
+}
