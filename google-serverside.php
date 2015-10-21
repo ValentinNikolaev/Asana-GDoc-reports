@@ -113,17 +113,7 @@ function retrieveReportFiles($service)
     return $result;
 }
 
-/**
- * Colorize Console text
- * @param $text
- * @param $status
- * @return string
- * @throws Exception
- */
-function colorize($text, $status)
-{
-    return $text;
-}
+
 
 /**
  * Create Draft email.
