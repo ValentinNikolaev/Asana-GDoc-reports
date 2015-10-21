@@ -7,7 +7,10 @@ $scopes = array(
     Google_Service_Drive::DRIVE_METADATA,
     Google_Service_Gmail::GMAIL_INSERT,
     Google_Service_Gmail::GMAIL_MODIFY,
-    Google_Service_Gmail::MAIL_GOOGLE_COM)
+    Google_Service_Gmail::MAIL_GOOGLE_COM,
+    Google_Service_Gmail::GMAIL_COMPOSE,
+    Google_Service_Gmail::GMAIL_READONLY,
+    )
 ;
 
 $humanTags = [
