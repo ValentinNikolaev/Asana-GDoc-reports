@@ -5,15 +5,20 @@ master branch is for test only. Check v2 branch for updates.
 mkdir -m 755 credentials && mkdir -m 755 reports && mkdir -m 755 tmp
 sudo chown -R www-data:www-data credentials/
 
-# Run from Cli to generateAsana reports
+# Usage
+1. Copy config-sample.php to config.php. Make needed changes
+2. Chande permissions at credentials and tmp folders to 777
+3. Run connect.php from browser. Connect your google account with script
+4. Run cli.php via Cli.
+5. Run doc_list.php from browser to get latest report list
 
-1. Run php google-cli.php
-2. Go via link and copy access code
-3. Insert code at Cli
+# Connect another account
+1. Run php cli.php -d from Cli
+2. Run connect.php from browser.
 
 # Cli options
 
-Usage: google-cli.php [options] [operands]
+Usage: cli.php [options] [operands]
 
 Options:
 
@@ -24,5 +29,5 @@ Options:
   -v, --version           Display version information
 
 # Send drafts
-1. To get latest report list, run google-serverside.php from browser
+1. Run doc_list.php from browser to get latest report list
 
