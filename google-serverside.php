@@ -117,6 +117,7 @@ function createDraft($service, $user, $message)
 $client = getClient();
 $service = new Google_Service_Drive($client);
 $gMailService = new Google_Service_Gmail($client);
+echo 'Current account: '.$gMailService->users->getProfile('me')->emailAddress;
 
 
 // Print the names and IDs for up to 10 files.
