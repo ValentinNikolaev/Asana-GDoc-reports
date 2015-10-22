@@ -126,7 +126,7 @@ define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
 
 //define('EMAIL_ADMIN', 'eugene@lifeisgoodlabs.com');
-define('EMAIL_ADMIN', 'valenti.nikolaev@gmail.com ');
+define('EMAIL_ADMIN', 'valenti.nikolaev@gmail.com');
 define('BASE_SERVER', '46.101.42.18/agdoc/');
 
 define('VERSION', '0.1 alfa');
