@@ -252,3 +252,8 @@ function refreshToken(Google_Client $client)
     file_put_contents($credentialsPath, $client->getAccessToken());
     return $client;
 }
+
+function getConnectedEmail($client) {
+    $service = new Google_Service_Gmail($client);
+    return $service->users->getProfile('me')->emailAddress;
+}

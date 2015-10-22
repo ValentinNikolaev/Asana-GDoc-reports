@@ -67,8 +67,6 @@ if (!is_writable(dirname($credentialsPath))) {
     echo "<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>";
 } else {
     $client = getClient();
-    $user = 'me';
-    $service = new Google_Service_Gmail($client);
-    echo 'Current account: '.$service->users->getProfile('me')->emailAddress;
+    echo 'Current account: '.getConnectedEmail($client);
 
 }
