@@ -59,7 +59,7 @@ function getClient()
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
     } else {
-        logStatusFailure("Please, get token via connect.php");
+        logStatusFailure("Please, get token via http://".BASE_SERVER."/connect.php");
         closeSession();
     }
 
@@ -67,8 +67,11 @@ function getClient()
 
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
-        logMessage("Token Expired");
-        $client = refreshToken($client);
+        logMessage("Token Expired. Refreshing via curl connect");
+        $ch = curl_init("http://".BASE_SERVER."/connect.php");
+        curl_exec($ch);
+        curl_close($ch);
+
     }
     return $client;
 }
@@ -561,6 +564,7 @@ function insertFolder($service, $title, $parentId = 'root')
 function insertFile($service, $title, $description, $parentId, $mimeType, $filename, $properties = [])
 {
     $file = new Google_Service_Drive_DriveFile();
+
     $file->setTitle($title);
     $file->setDescription($description);
     $file->setMimeType($mimeType);
@@ -769,6 +773,8 @@ function getAsanaTasks($startTasksDate = 'now')
 $client = getClient();
 $service = new Google_Service_Drive($client);
 logMessage ('Current account: '.getConnectedEmail($client) );
+$user = $service->about->get()->getUser();
+logMessage('Drive owner:' .$user->displayName.' <'.$user->emailAddress.'>');
 
 // Print the names and IDs for up to 10 files.
 logMessage("Getting templates...");
