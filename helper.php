@@ -245,11 +245,16 @@ function sendAdminEmail($messages) {
     }
 }
 
-function refreshToken(Google_Client $client)
-{
+function refreshToken($client) {
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
-    file_put_contents($credentialsPath, $client->getAccessToken());
+    if (file_put_contents($credentialsPath, $client->getAccessToken())) {
+//        chown($credentialsPath, 'www-dataa');
+        logStatusSuccess("Refreshing Token");
+    } else {
+        logStatusFailure("Refreshing Token");
+        closeSession(false);
+    }
     return $client;
 }
 

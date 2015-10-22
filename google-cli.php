@@ -103,19 +103,7 @@ function removeCredentials() {
     }
 }
 
-function refreshToken($client) {
-    global $credentialsPath;
-    $client->refreshToken($client->getRefreshToken());
-    if (file_put_contents($credentialsPath, $client->getAccessToken())) {
-//        chown($credentialsPath, 'www-dataa');
-        logStatusSuccess("Refreshing Token");
-    } else {
-        logStatusFailure("Refreshing Token");
-        closeSession(false);
-    }
-    return $client;
 
-}
 
 /**
  * Download a file's content.
