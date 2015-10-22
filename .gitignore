@@ -4,3 +4,4 @@
 composer.lock
 #client_secret.json
 /credentials/drive-api-asana-gdoc-cli.json
+config.php

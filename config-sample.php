@@ -10,7 +10,7 @@ $scopes = array(
     Google_Service_Gmail::MAIL_GOOGLE_COM,
     Google_Service_Gmail::GMAIL_COMPOSE,
     Google_Service_Gmail::GMAIL_READONLY,
-    )
+)
 ;
 
 $humanTags = [
@@ -42,10 +42,10 @@ $emailConfig = array(
 );
 
 
-define('RESPONSE_PERSON', 'Eugene Pyvovarov');
-define('EMAIL_ADMIN', 'valenti.nikolaev@gmail.com'); // cron worker reports here
-define('BASE_SERVER', 'http://asanag.local/agdoc/'); // needed to refresh tokens and to connect accounts
-define('ASANA_API_KEY', 'a8Q4X92r.nuGrfjtJ2AcroDkrWbJmBLK');
+define('RESPONSE_PERSON', 'Linus Torvalds');
+define('EMAIL_ADMIN', 'example@localhost'); // cron worker reports will send here
+define('BASE_SERVER', ''); // needed to refresh tokens and to connect accounts i.e. http://localhost/
+define('ASANA_API_KEY', '');
 
 /**
  * clients and projects
