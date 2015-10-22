@@ -71,14 +71,17 @@ echo "php cli.php -v  get version<br>";
 echo "<hr>";
 
 if (!is_writable(dirname($credentialsPath))) {
-    echo "<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>";
-} elseif (!is_writable(TMP_PATH)) {
-    echo "<strong>".TMP_PATH."</strong> is not <u>writable</u>";
+    die("<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>") ;
 }
 
+if (!is_writable(TMP_PATH)) {
+    die("<strong>".TMP_PATH."</strong> is not <u>writable</u>");
+}
 
-else {
+if (!ASANA_API_KEY)
+    die("<strong>ASANA_API_KEY</strong> is empty");
+
     $client = getClient();
     echo 'Current account: '.getConnectedEmail($client);
 
-}
+
