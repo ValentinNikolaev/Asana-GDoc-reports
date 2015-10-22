@@ -3,14 +3,13 @@ require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/helper.php';
 
 
-
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
 
 /**
-* Returns an authorized API client.
+ * Returns an authorized API client.
  * @return Google_Client the authorized client object
-*/
+ */
 function getClient()
 {
     global $credentialsPath;
@@ -71,17 +70,20 @@ echo "php cli.php -v  get version<br>";
 echo "<hr>";
 
 if (!is_writable(dirname($credentialsPath))) {
-    die("<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>") ;
+    die("<strong>" . dirname($credentialsPath) . "</strong> is not <u>writable</u>");
 }
 
 if (!is_writable(TMP_PATH)) {
-    die("<strong>".TMP_PATH."</strong> is not <u>writable</u>");
+    die("<strong>" . TMP_PATH . "</strong> is not <u>writable</u>");
 }
 
 if (!ASANA_API_KEY)
     die("<strong>ASANA_API_KEY</strong> is empty");
 
-    $client = getClient();
-    echo 'Current account: '.getConnectedEmail($client);
+if (!BASE_SERVER)
+    die("<strong>BASE_SERVER</strong> is empty");
+
+$client = getClient();
+echo 'Current account: ' . getConnectedEmail($client);
 
 
