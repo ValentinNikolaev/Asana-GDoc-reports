@@ -107,9 +107,9 @@ function createDraft($service, $user, $message)
     $draft->setMessage($message);
     try {
         $draft = $service->users_drafts->create($user, $draft);
-        print 'Draft ID: ' . $draft->getId();
+        print 'Draft ID: ' . $draft->getId().'<br>';
     } catch (Exception $e) {
-        print 'An error occurred: ' . $e->getMessage();
+        print 'An error occurred: ' . $e->getMessage().'<br>';
     }
     return $draft;
 }
@@ -117,7 +117,9 @@ function createDraft($service, $user, $message)
 $client = getClient();
 $service = new Google_Service_Drive($client);
 $gMailService = new Google_Service_Gmail($client);
-echo 'Current account: '.$gMailService->users->getProfile('me')->emailAddress;
+echo 'Current account: '.getConnectedEmail($client).'<br>';
+$user = $service->about->get()->getUser();
+logMessage('Drive owner:' .$user->displayName.' ['.$user->emailAddress.']');
 
 
 // Print the names and IDs for up to 10 files.
