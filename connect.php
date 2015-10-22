@@ -63,9 +63,21 @@ function getClient()
     return $client;
 }
 
+
+echo "Commands:<br>";
+echo "php google-cli.php -d to delete token<br>";
+echo "php google-cli.php -r to refresh token<br>";
+echo "php google-cli.php -v  get version<br>";
+echo "<hr>";
+
 if (!is_writable(dirname($credentialsPath))) {
     echo "<strong>".dirname($credentialsPath)."</strong> is not <u>writable</u>";
-} else {
+} elseif (!is_writable(TMP_PATH)) {
+    echo "<strong>".TMP_PATH."</strong> is not <u>writable</u>";
+}
+
+
+else {
     $client = getClient();
     echo 'Current account: '.getConnectedEmail($client);
 
