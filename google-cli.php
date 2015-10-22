@@ -768,6 +768,7 @@ function getAsanaTasks($startTasksDate = 'now')
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Drive($client);
+logMessage ('Current account: '.getConnectedEmail($client) );
 
 // Print the names and IDs for up to 10 files.
 logMessage("Getting templates...");
