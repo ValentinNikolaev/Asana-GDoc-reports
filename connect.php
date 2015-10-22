@@ -65,9 +65,9 @@ function getClient()
 
 
 echo "Commands:<br>";
-echo "php google-cli.php -d to delete token<br>";
-echo "php google-cli.php -r to refresh token<br>";
-echo "php google-cli.php -v  get version<br>";
+echo "php cli.php -d to delete token<br>";
+echo "php cli.php -r to refresh token<br>";
+echo "php cli.php -v  get version<br>";
 echo "<hr>";
 
 if (!is_writable(dirname($credentialsPath))) {
