@@ -1,5 +1,5 @@
 <?php
-
+header('Location: connect.php');
 require __DIR__. '/config.php';
 require __DIR__ . '/asana.php';
 
