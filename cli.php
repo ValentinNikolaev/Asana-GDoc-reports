@@ -628,7 +628,7 @@ function removeFileIfExists($service, $title, $folderId) {
     if ($result)
         foreach ($result as $file) {
             logMessage("Deleting exist file $file->title");
-//            $service->permissions->delete($file->getId(), $service->about->get()->permissionId);
+//            $service->permissions->insert($file->getId(), $service->about->get()->permissionId);
             deleteFile($service, $file->getId());
         }
 
@@ -849,7 +849,8 @@ if ($templates) {
         $gProjectDir = insertFolder($service, GDOC_REPORT_DIR_NAME);
     }
     logMessage("Set permissions for a report dir....");
-    insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
+//    insertPermission($service, $gProjectDir->getId(), null, 'anyone', 'reader'  );
+//    insertPermission($service, $gProjectDir->getId(), $user->emailAddress, 'user', 'owner'  );
     $startTasksDate = getStartTasksDate();
     logMessage("Processing Asana tasks....");
     logMessage("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
@@ -905,6 +906,7 @@ if ($templates) {
                         removeFileIfExists($service, $fileReportName, $saveDir->getId());
                         logMessage("Sending file '" . $fileReportName . "' to google drive");
                         $insertedFile = insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
+//                        insertPermission($service, $insertedFile->getId() , $user->emailAddress, 'user', 'owner'  );
                         reportMessage("<a href='https://docs.google.com/spreadsheets/d/".$insertedFile->getId()."/edit' target='_blank'>".$insertedFile->getTitle()."</a>");
                     }
 //                }
