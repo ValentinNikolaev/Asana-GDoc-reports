@@ -174,7 +174,8 @@ function retrieveFiles($service, $findDirs = false)
 
 function catchGoogleExceptions($e) {
     global $credentialsPath, $client;
-    logError("An error occurred: " . $e->getMessage());
+    logError("An error occurred ".$e->getCode().": " . $e->getMessage());
+    var_dump($e);
     switch ($e->getCode()) {
         case '401':
             refreshToken($client);
