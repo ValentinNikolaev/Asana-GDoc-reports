@@ -861,7 +861,7 @@ if ($templates) {
         foreach ($templates as $template) {
             logMessage("Processing Report template '$template' ");
             reportMessage("<h1><strong>Reports:</strong></h1>");
-            reportMessage("<h2><a href='http://".BASE_SERVER."doc_list.php'><strong>Make report drafts!</strong></a></h2>");
+            reportMessage("<h2><a href='".BASE_SERVER."doc_list.php'><strong>Make report drafts!</strong></a></h2>");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
