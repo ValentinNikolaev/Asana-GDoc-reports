@@ -182,10 +182,22 @@ if (isset($_POST['report'])) {
 
 
         $headers = get_headers($reportUrl);
+
 //        echo '<pre>';
 //        var_dump($headers);
         if ($headers) {
-            $im = file_get_contents($reportUrl);
+            $request = new Google_Http_Request($reportUrl, 'GET', null, null);
+            $httpRequest = $service->getClient()->getAuth()->authenticatedRequest($request);
+            if ($httpRequest->getResponseHttpCode() == 200) {
+                $im = $httpRequest->getResponseBody();
+                $headers = $httpRequest->getResponseHeaders();
+            } else {
+                echo 'An error occurred.<br>';
+                continue;
+            }
+
+
+            //$im = file_get_contents($reportUrl);
             if ($im === FALSE) {
                 echo 'Skipped. Cannot receive file  ' . $reportUrl . '<br>';
                 continue;
@@ -197,9 +209,10 @@ if (isset($_POST['report'])) {
             $mail .= $msg;
             $mail .= "--$name\n";
             foreach ($allowedHeaders as $allowedHeader) {
-                foreach ($headers as $header) {
-                    if (strpos($header, $allowedHeader) !== false) {
-                        $mail .= $header . "\n";
+                foreach ($headers as $key => $header) {
+                    if ($key == $allowedHeader) {
+                        $mail .= $allowedHeader.":".$header . "\n";
+
                     }
                 }
             }
