@@ -205,21 +205,22 @@ if (isset($_POST['report'])) {
             $name = base64_encode($reportUrl);
             $mail .= "Content-Type: multipart/mixed; boundary=\"$name\" \n";
             $mail .= "--$name\n";
-            $mail .= "Content-Type: text/plain; charset=UTF-8\n\n";
+            $mail .= "Content-Type: text/plain; charset=UTF-8\n";
             $mail .= $msg;
             $mail .= "--$name\n";
-            foreach ($allowedHeaders as $allowedHeader) {
+            /*foreach ($allowedHeaders as $allowedHeader) {
                 foreach ($headers as $key => $header) {
                     if ($key == $allowedHeader) {
-                        $mail .= $allowedHeader.":".$header . "\n";
-
+                        $mail .= $key.": ".$header . "\n";
                     }
                 }
-            }
-            $mail .= "Content-Transfer-Encoding: base64\n\n";
+            }*/
+            $mail .= "Content-Type: {$headers['content-type']}\n";
+            $mail .= "Content-Transfer-Encoding: base64\n";
+            $mail .= "Content-Disposition: {$headers['content-disposition']}\n\n";
             $mail .= base64_encode($im);
             $mail .= "--$name--\n";
-
+//            echo $mail;
         } else {
             echo 'Skipped. Cannot recive headers <br>';
             continue;
