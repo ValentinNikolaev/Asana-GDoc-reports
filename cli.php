@@ -217,10 +217,8 @@ function prepareMergeRange($mergedRange) {
                 } else {
                     $k = 'end';
                 }
-//                echo ;
 
                 if (ctype_alpha($char)) {
-
                     $k2 = 'column';
                 } else {
                     $k2 = 'row';
@@ -231,7 +229,6 @@ function prepareMergeRange($mergedRange) {
 
                 if (!isset($result[$k][$k2]))
                     $result[$k][$k2] = '';
-
 
                 if (!isset($result[$k]['column']))
                     $result[$k][$k2] = $char;
