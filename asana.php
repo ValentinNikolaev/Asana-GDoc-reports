@@ -19,13 +19,11 @@ define('ASANA_METHOD_DELETE', 4);
 
 class Asana
 {
-    private $timeout = 10;
-    private $debug = false;
-    private $advDebug = false; // Note that enabling advanced debug will include debugging information in the response possibly breaking up your code
-    private $asanaApiVersion = '1.0';
-
     public $responseCode;
-
+    private $timeout = 10;
+        private $debug = false; // Note that enabling advanced debug will include debugging information in the response possibly breaking up your code
+private $advDebug = false;
+    private $asanaApiVersion = '1.0';
     private $endPointUrl;
     private $apiKey;
     private $accessToken;
@@ -228,9 +226,11 @@ class Asana
      */
     public function updateTaskParent($taskId, $parentId, array $opts = array())
     {
-        $data = array('data' => array(
-            'parent' => $parentId
-        ));
+        $data = array(
+            'data' => array(
+                'parent' => $parentId
+            )
+        );
         $data = json_encode($data);
         $options = http_build_query($opts);
 
@@ -352,8 +352,10 @@ class Asana
      *
      * @return string JSON or null
      */
-    public function getTasksByFilter($filter = array('assignee' => '', 'project' => '', 'workspace' => ''), array $opts = array())
-    {
+    public function getTasksByFilter(
+        $filter = array('assignee' => '', 'project' => '', 'workspace' => ''),
+        array $opts = array()
+    ) {
         $url = '';
         $filter = array_merge(array('assignee' => '', 'project' => '', 'workspace' => ''), $filter);
 
@@ -476,26 +478,26 @@ class Asana
      * @param array $data (src of file, mymetype, finalFilename) See, Uploading an attachment to a task function comments for proper parameter info.
      * @return string JSON or null
      */
-     public function addAttachmentToTask($taskId, array $data = array())
-     {
-         $mimeType = array_key_exists('mimeType', $data) ? $data['mimeType'] : null;
-         $finalFilename = array_key_exists('finalFilename', $data) ? $data["finalFilename"] : null;
+    public function addAttachmentToTask($taskId, array $data = array())
+    {
+        $mimeType = array_key_exists('mimeType', $data) ? $data['mimeType'] : null;
+        $finalFilename = array_key_exists('finalFilename', $data) ? $data["finalFilename"] : null;
 
-         if (class_exists('CURLFile', false)) {
-             $data['file'] = new CURLFile($data['file'], $data['mimeType'], $data['finalFilename']);
-         } else {
-             $data['file'] = "@{$data['file']}";
+        if (class_exists('CURLFile', false)) {
+            $data['file'] = new CURLFile($data['file'], $data['mimeType'], $data['finalFilename']);
+        } else {
+            $data['file'] = "@{$data['file']}";
 
-             if (!is_null($finalFilename)) {
-                 $data['file'] .= ';filename=' . $finalFilename;
-             }
-             if (!is_null($mimeType)) {
-                 $data['file'] .= ';type=' . $mimeType;
-             }
-         }
+            if (!is_null($finalFilename)) {
+                $data['file'] .= ';filename=' . $finalFilename;
+            }
+            if (!is_null($mimeType)) {
+                $data['file'] .= ';type=' . $mimeType;
+            }
+        }
 
-         return $this->askAsana($this->taskUrl . '/' . $taskId . '/attachments', $data, ASANA_METHOD_POST);
-     }
+        return $this->askAsana($this->taskUrl . '/' . $taskId . '/attachments', $data, ASANA_METHOD_POST);
+    }
 
     /**
      * Returns task attachments information
@@ -559,7 +561,7 @@ class Asana
      * Returns the projects in all workspaces containing archived ones or not.
      *
      * @param boolean $archived Return archived projects or not
-     * @param string  $opt_fields Return results with optional parameters
+     * @param string $opt_fields Return results with optional parameters
      */
     public function getProjects($archived = false, $opt_fields = '')
     {

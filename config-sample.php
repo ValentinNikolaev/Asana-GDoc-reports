@@ -7,8 +7,7 @@ $scopes = array(
     Google_Service_Gmail::MAIL_GOOGLE_COM,
     Google_Service_Gmail::GMAIL_COMPOSE,
     Google_Service_Gmail::GMAIL_READONLY,
-)
-;
+);
 
 $humanTags = [
     'dev' => 'backend development',
@@ -29,7 +28,7 @@ $emailConfig = array(
     'fromName' => 'Asana Reports Sender',
     'subject' => 'Asana Reports',
     'host' => 'smtp.sendgrid.net',
-    'port' => 587   ,
+    'port' => 587,
     'username' => 'chris@ultimateblogsecurity.com',
     'password' => 'u1timate',
     'log' => true,
@@ -113,11 +112,12 @@ define('GDOC_FOLDER_MIME', 'application/vnd.google-apps.folder');
 define('GDOC_PDF_MIME', 'application/pdf');
 
 define('APPLICATION_NAME', 'Asana GDoc CLI');
-define('CREDENTIALS_PATH', __DIR__.'/credentials/drive-api-asana-gdoc-cli.json');
-define('CREDENTIALS_PATH_PHP',/* __DIR__.'/credentials/drive-api-asana-gdoc.json'*/CREDENTIALS_PATH);
+define('CREDENTIALS_PATH', __DIR__ . '/credentials/drive-api-asana-gdoc-cli.json');
+define('CREDENTIALS_PATH_PHP',/* __DIR__.'/credentials/drive-api-asana-gdoc.json'*/
+CREDENTIALS_PATH);
 
-define('TMP_PATH', __DIR__.'/tmp/');
-define('REPORTS_PATH', __DIR__.'/reports/');
+define('TMP_PATH', __DIR__ . '/tmp/');
+define('REPORTS_PATH', __DIR__ . '/reports/');
 define('CLIENT_SECRET_PATH', 'client_secret.json');
 
 define('GDOC_REPORT_DIR_NAME', 'Reports');
@@ -126,7 +126,6 @@ define("DATE_FORMAT_FNAME", "m_d_Y");
 
 define('LOG_SHOW_DATETIME', true);
 define('LOG_DATETIME_FORMAT', 'H:i:s d.m.Y');
-
 
 
 define('VERSION', '0.1 alfa');

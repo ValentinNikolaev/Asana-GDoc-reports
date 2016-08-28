@@ -32,7 +32,7 @@ try {
     }
 
 } catch (UnexpectedValueException $e) {
-    echo "Error: ".$e->getMessage()."\n";
+    echo "Error: " . $e->getMessage() . "\n";
     echo $getopt->getHelpText();
     exit(1);
 }
@@ -59,7 +59,7 @@ function getClient()
     if (file_exists($credentialsPath)) {
         $accessToken = file_get_contents($credentialsPath);
     } else {
-        logStatusFailure("Please, get token via http://".BASE_SERVER."/connect.php");
+        logStatusFailure("Please, get token via http://" . BASE_SERVER . "/connect.php");
         closeSession();
     }
 
@@ -68,7 +68,7 @@ function getClient()
     // Refresh the token if it's expired.
     if ($client->isAccessTokenExpired()) {
         logMessage("Token Expired. Refreshing via curl connect");
-        $ch = curl_init("http://".BASE_SERVER."/connect.php");
+        $ch = curl_init("http://" . BASE_SERVER . "/connect.php");
         curl_exec($ch);
         curl_close($ch);
 
@@ -76,7 +76,8 @@ function getClient()
     return $client;
 }
 
-function refreshTokenCli() {
+function refreshTokenCli()
+{
     global $credentialsPath;
     $client = new Google_Client();
     $client->setApplicationName(APPLICATION_NAME);
@@ -87,25 +88,25 @@ function refreshTokenCli() {
         $accessToken = file_get_contents($credentialsPath);
         $client->setAccessToken($accessToken);
     } else {
-        logStatusFailure($credentialsPath." exists");
+        logStatusFailure($credentialsPath . " exists");
         closeSession(false);
     }
     refreshToken($client);
 }
 
-function removeCredentials() {
+function removeCredentials()
+{
     global $credentialsPath;
-    if (is_file($credentialsPath))
-    {
-        if (unlink($credentialsPath))
+    if (is_file($credentialsPath)) {
+        if (unlink($credentialsPath)) {
             logStatusSuccess("Credentials deleted");
-        else
+        } else {
             logStatusSuccess("Credentials deleted");
+        }
     } else {
-        logStatusFailure($credentialsPath." exists");
+        logStatusFailure($credentialsPath . " exists");
     }
 }
-
 
 
 /**
@@ -150,12 +151,12 @@ function downloadFile($service, $file)
 function retrieveFiles($service, $findDirs = false)
 {
     $result = array();
-    $pageToken = NULL;
+    $pageToken = null;
 
     do {
         try {
             $parameters = array(
-                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'".GDOC_FOLDER_MIME."' and trashed = false"
+                'q' => "mimeType " . ($findDirs ? '=' : '!=') . "'" . GDOC_FOLDER_MIME . "' and trashed = false"
             );
             if ($pageToken) {
                 $parameters['pageToken'] = $pageToken;
@@ -166,37 +167,41 @@ function retrieveFiles($service, $findDirs = false)
             $pageToken = $files->getNextPageToken();
         } catch (Exception $e) {
             catchGoogleExceptions($e);
-            $pageToken = NULL;
+            $pageToken = null;
         }
     } while ($pageToken);
     return $result;
 }
 
-function catchGoogleExceptions($e) {
+function catchGoogleExceptions($e)
+{
     global $credentialsPath, $client;
-    logError("An error occurred ".$e->getCode().": " . $e->getMessage());
+    logError("An error occurred " . $e->getCode() . ": " . $e->getMessage());
 //    var_dump($e);
     switch ($e->getCode()) {
         case '401':
             refreshToken($client);
-            logError("Token refreshed. Please restart app") ;
+            logError("Token refreshed. Please restart app");
             break;
     }
     closeSession();
 }
 
-function getMerged($address, $mergedCells) {
+function getMerged($address, $mergedCells)
+{
     if ($mergedCells) {
         $address = strtoupper($address);
         foreach ($mergedCells as $mergedRange) {
-            if (strpos($mergedRange,':') !== false) {
+            if (strpos($mergedRange, ':') !== false) {
                 // get the cells in the range
                 $aReferences = PHPExcel_Cell::extractAllCellReferencesInRange($mergedRange);
-                if ($aReferences)
+                if ($aReferences) {
                     foreach ($aReferences as $aCell) {
-                        if ($aCell == $address)
+                        if ($aCell == $address) {
                             return prepareMergeRange($mergedRange);
+                        }
                     }
+                }
             }
         }
     }
@@ -204,9 +209,10 @@ function getMerged($address, $mergedCells) {
     return [];
 }
 
-function prepareMergeRange($mergedRange) {
+function prepareMergeRange($mergedRange)
+{
     $result = [];
-    if (strpos($mergedRange,':') !== false) {
+    if (strpos($mergedRange, ':') !== false) {
         $mergedRangeArray = explode(":", $mergedRange);
 
         foreach ($mergedRangeArray as $key => $cellAddress) {
@@ -224,16 +230,19 @@ function prepareMergeRange($mergedRange) {
                     $k2 = 'row';
                 }
 
-                if (!isset($result[$k]))
+                if (!isset($result[$k])) {
                     $result[$k] = [];
+                }
 
-                if (!isset($result[$k][$k2]))
+                if (!isset($result[$k][$k2])) {
                     $result[$k][$k2] = '';
+                }
 
-                if (!isset($result[$k]['column']))
+                if (!isset($result[$k]['column'])) {
                     $result[$k][$k2] = $char;
-                else
+                } else {
                     $result[$k][$k2] .= $char;
+                }
             }
 
         }
@@ -241,11 +250,13 @@ function prepareMergeRange($mergedRange) {
     }
 
     if ($result) {
-        if (!array_key_exists('start', $result) || !array_key_exists('end', $result))
+        if (!array_key_exists('start', $result) || !array_key_exists('end', $result)) {
             return [];
+        }
         foreach ($result as $c => $cData) {
-            if (!array_key_exists('column', $cData) || !array_key_exists('row', $cData))
+            if (!array_key_exists('column', $cData) || !array_key_exists('row', $cData)) {
                 return [];
+            }
         }
     }
 
@@ -314,8 +325,9 @@ function generateXlsReports($data, $fileName, $clientName)
 //                    $objPHPExcel->getActiveSheet()->setCellValue($cellAddress, $data['project']->name);
                         break;
                     case '<task_type>':
-                        if (!$tableStartCell)
+                        if (!$tableStartCell) {
                             $tableStartCell = $cellAddress;
+                        }
                         $tableCells[] = [
                             'key' => 'tags',
                             'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
@@ -328,8 +340,9 @@ function generateXlsReports($data, $fileName, $clientName)
 
                         break;
                     case '<task_completed>':
-                        if (!$tableStartCell)
+                        if (!$tableStartCell) {
                             $tableStartCell = $cellAddress;
+                        }
                         $tableCells[] = [
                             'key' => 'completed',
                             'style' => $sheet->getStyle($cellAddress)->getSharedComponent()
@@ -340,8 +353,9 @@ function generateXlsReports($data, $fileName, $clientName)
                         ];
                         break;
                     case '<notes>':
-                        if (!$tableStartCell)
+                        if (!$tableStartCell) {
                             $tableStartCell = $cellAddress;
+                        }
                         $tableCells[] = [
                             'key' => 'notes',
                             'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
@@ -352,8 +366,9 @@ function generateXlsReports($data, $fileName, $clientName)
                         ];
                         break;
                     case '<link>':
-                        if (!$tableStartCell)
+                        if (!$tableStartCell) {
                             $tableStartCell = $cellAddress;
+                        }
                         $tableCells[] = [
                             'key' => 'link',
                             'style' => $objPHPExcel->getActiveSheet()->getStyle($cellAddress)->getSharedComponent()
@@ -427,10 +442,12 @@ function generateXlsReports($data, $fileName, $clientName)
                         $tplCell = $cell['key'];
                         if (isset($task[$tplCell])) {
                             if (is_array($task[$tplCell])) {
-                                if (isset($task[$tplCell]['title']))
+                                if (isset($task[$tplCell]['title'])) {
                                     $value = $task[$tplCell]['title'];
-                                if (isset($task[$tplCell]['url']))
+                                }
+                                if (isset($task[$tplCell]['url'])) {
                                     $url = $task[$tplCell]['url'];
+                                }
                             } else {
                                 $value = $task[$tplCell];
                             }
@@ -439,12 +456,14 @@ function generateXlsReports($data, $fileName, $clientName)
                             $value = '';
                         }
                         $objPHPExcel->getActiveSheet()->setCellValue($tableCellAddress, $value);
-                        if (isset($cell['style']))
+                        if (isset($cell['style'])) {
                             $objPHPExcel->getActiveSheet()->duplicateStyle($cell['style'], $tableCellAddress);
+                        }
 //                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->applyFromArray($styleArray);
 //                    $objPHPExcel->getActiveSheet()->getStyle($tableCellAddress)->getAlignment()->setWrapText(true);
-                        if ($url)
+                        if ($url) {
                             $objPHPExcel->getActiveSheet()->getCell($tableCellAddress)->getHyperlink()->setUrl($url);
+                        }
                         $tableStartCellColumnLoop = $alphas[array_search($tableStartCellColumnLoop, $alphas) + 1];
                     }
                     $tableStartCellRowLoop = $tableStartCellRow + $key;
@@ -471,13 +490,14 @@ function createProjectReportDir($projectName = '')
         if (!file_exists($pathDir)) {
             logMessage("Project dir '$pathDir' doesn't exists. Try to create... \n");
             if (mkdir($pathDir, 0777, true)) {
-                logStatusSuccess("Project '$pathDir' create" );
+                logStatusSuccess("Project '$pathDir' create");
                 return $pathDir;
             } else {
                 logStatusFailure("Project '$pathDir' create");
             }
-        } else
+        } else {
             return $pathDir;
+        }
     }
 
     return REPORTS_PATH;
@@ -489,13 +509,14 @@ function createProjectReportDir($projectName = '')
  * @param Google_Service_Drive $service Drive API service instance.
  * @param String $fileId ID of the file to insert permission for.
  * @param String $value User or group e-mail address, domain name or NULL for
-"default" type.
+ * "default" type.
  * @param String $type The value "user", "group", "domain" or "default".
  * @param String $role The value "owner", "writer" or "reader".
  * @return Google_Servie_Drive_Permission The inserted permission. NULL is
  *     returned if an API error occurred.
  */
-function insertPermission($service, $fileId, $value, $type, $role) {
+function insertPermission($service, $fileId, $value, $type, $role)
+{
     $newPermission = new Google_Service_Drive_Permission();
     $newPermission->setValue($value);
     $newPermission->setType($type);
@@ -503,9 +524,9 @@ function insertPermission($service, $fileId, $value, $type, $role) {
     try {
         return $service->permissions->insert($fileId, $newPermission);
     } catch (Exception $e) {
-       catchGoogleExceptions($e);
+        catchGoogleExceptions($e);
     }
-    return NULL;
+    return null;
 }
 
 
@@ -600,9 +621,10 @@ function insertFile($service, $title, $description, $parentId, $mimeType, $filen
  * @param Google_Service_Drive $service Drive API service instance.
  * @param string $fileId ID of the file to print metadata for.
  */
-function removeFileIfExists($service, $title, $folderId) {
+function removeFileIfExists($service, $title, $folderId)
+{
     $result = array();
-    $pageToken = NULL;
+    $pageToken = null;
 
     do {
         try {
@@ -618,16 +640,17 @@ function removeFileIfExists($service, $title, $folderId) {
             $pageToken = $files->getNextPageToken();
         } catch (Exception $e) {
             catchGoogleExceptions($e);
-            $pageToken = NULL;
+            $pageToken = null;
         }
     } while ($pageToken);
 
-    if ($result)
+    if ($result) {
         foreach ($result as $file) {
             logMessage("Deleting exist file $file->title");
 //            $service->permissions->insert($file->getId(), $service->about->get()->permissionId);
             deleteFile($service, $file->getId());
         }
+    }
 
 }
 
@@ -637,7 +660,8 @@ function removeFileIfExists($service, $title, $folderId) {
  * @param Google_Service_Drive $service Drive API service instance.
  * @param String $fileId ID of the file to delete.
  */
-function deleteFile($service, $fileId) {
+function deleteFile($service, $fileId)
+{
     try {
 
         $service->files->delete($fileId);
@@ -688,7 +712,8 @@ function getAsanaTasks($startTasksDate = 'now')
                 'tasks' => [],
             ];
             // Get all tasks in the current project
-            $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate/*, 'opt_fields' => 'tags, name'*/]);
+            $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id],
+                ['modified_since' => $startTasksDate/*, 'opt_fields' => 'tags, name'*/]);
 //        var_dump($tasks);die;
 
             $tasksJson = json_decode($tasks);
@@ -745,16 +770,19 @@ function getAsanaTasks($startTasksDate = 'now')
         }
 
         // remove empty entities
-        if ($returnData)
+        if ($returnData) {
             foreach ($returnData as $clientName => $clientData) {
-                if (!$clientData)
+                if (!$clientData) {
                     unset($returnData[$clientName]);
-                else
+                } else {
                     foreach ($clientData as $projectId => $projectData) {
-                        if (!$projectData)
+                        if (!$projectData) {
                             unset($returnData[$clientName][$projectId]);
+                        }
                     }
+                }
             }
+        }
     }
 
 //    var_dump($returnData);die;
@@ -770,9 +798,9 @@ function getAsanaTasks($startTasksDate = 'now')
 // Get the API client and construct the service object.
 $client = getClient();
 $service = new Google_Service_Drive($client);
-logMessage ('Current account: '.getConnectedEmail($client) );
+logMessage('Current account: ' . getConnectedEmail($client));
 $user = $service->about->get()->getUser();
-logMessage('Drive owner:' .$user->displayName.' <'.$user->emailAddress.'>');
+logMessage('Drive owner:' . $user->displayName . ' <' . $user->emailAddress . '>');
 
 // Print the names and IDs for up to 10 files.
 logMessage("Getting templates...");
@@ -812,8 +840,9 @@ if (count($gFiles) == 0) {
     }
 }
 
-if (!$templates)
+if (!$templates) {
     closeSession();
+}
 
 
 /**
@@ -821,7 +850,7 @@ if (!$templates)
  */
 $gProjectDir = false;
 
-logMessage("Templates download: ".count($templates));
+logMessage("Templates download: " . count($templates));
 if ($templates) {
     /**
      * working with gDrive folders
@@ -852,60 +881,61 @@ if ($templates) {
     logMessage("Processing Asana tasks....");
     logMessage("Start from: " . $startTasksDate . "[" . DATETIME_TIMEZONE_ASANA . "]");
     $tasks = getAsanaTasks($startTasksDate);
-    if (!is_array($tasks))
+    if (!is_array($tasks)) {
         logMessage("Something goes wrong during Asana request");
-    else {
+    } else {
         logMessage("Tasks found: " . $tasks['tasksCounter'] . ", projects found: " . $tasks['projectsCounter']);
 
         foreach ($templates as $template) {
             logMessage("Processing Report template '$template' ");
             reportMessage("<h1><strong>Reports:</strong></h1>");
-            reportMessage("<h2><a href='".BASE_SERVER."doc_list.php'><strong>Make report drafts!</strong></a></h2>");
+            reportMessage("<h2><a href='" . BASE_SERVER . "doc_list.php'><strong>Make report drafts!</strong></a></h2>");
             foreach ($tasks['data'] as $clientName => $taskData) {
 //                var_dump($taskData);die;
 //                if (isset($taskData['project'])) {
 
-                    $fileReport = generateXlsReports($taskData, $template, $clientName);
+                $fileReport = generateXlsReports($taskData, $template, $clientName);
 //                die;
-                    if (file_exists($fileReport)) {
-                        reportMessage("<br><i>$clientName:</i>");
-                        logMessage("Uploading report '" . basename($fileReport) . "' to google drive....\n");
+                if (file_exists($fileReport)) {
+                    reportMessage("<br><i>$clientName:</i>");
+                    logMessage("Uploading report '" . basename($fileReport) . "' to google drive....\n");
 
-                        $saveDir = $gProjectDir;
-                        $foundProjectGDir = false;
-                        $reportFolderName = $clientName;
+                    $saveDir = $gProjectDir;
+                    $foundProjectGDir = false;
+                    $reportFolderName = $clientName;
 
-                        $fileReportName = basename($fileReport);
-                        foreach ($gDirs as $dir) {
-                            if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
-                                $saveDir = $dir;
-                                $foundProjectGDir = true;
-                            }
+                    $fileReportName = basename($fileReport);
+                    foreach ($gDirs as $dir) {
+                        if (!$foundProjectGDir && $dir->getTitle() == $reportFolderName) {
+                            $saveDir = $dir;
+                            $foundProjectGDir = true;
                         }
-
-                        if (!$foundProjectGDir) {
-                            logMessage("Create GDrive folder for project '" . $reportFolderName);
-                            $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
-                        }
-                        $properties = [
-                            [
-                                'key'=> 'isAsanaGDocReport',
-                                'value' => 'true',
-                                'visibility' => 'PUBLIC',
-
-                            ],
-                            [
-                                'key' => 'asanaClientName',
-                                'value' => $clientName,
-                                'visibility' => 'PUBLIC',
-                            ]
-                        ];
-                        removeFileIfExists($service, $fileReportName, $saveDir->getId());
-                        logMessage("Sending file '" . $fileReportName . "' to google drive");
-                        $insertedFile = insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME, $fileReport, $properties);
-//                        insertPermission($service, $insertedFile->getId() , $user->emailAddress, 'user', 'owner'  );
-                        reportMessage("<a href='https://docs.google.com/spreadsheets/d/".$insertedFile->getId()."/edit' target='_blank'>".$insertedFile->getTitle()."</a>");
                     }
+
+                    if (!$foundProjectGDir) {
+                        logMessage("Create GDrive folder for project '" . $reportFolderName);
+                        $saveDir = insertFolder($service, $reportFolderName, $gProjectDir->getId());
+                    }
+                    $properties = [
+                        [
+                            'key' => 'isAsanaGDocReport',
+                            'value' => 'true',
+                            'visibility' => 'PUBLIC',
+
+                        ],
+                        [
+                            'key' => 'asanaClientName',
+                            'value' => $clientName,
+                            'visibility' => 'PUBLIC',
+                        ]
+                    ];
+                    removeFileIfExists($service, $fileReportName, $saveDir->getId());
+                    logMessage("Sending file '" . $fileReportName . "' to google drive");
+                    $insertedFile = insertFile($service, $fileReportName, '', $saveDir->getId(), GDOC_SHEET_MIME,
+                        $fileReport, $properties);
+//                        insertPermission($service, $insertedFile->getId() , $user->emailAddress, 'user', 'owner'  );
+                    reportMessage("<a href='https://docs.google.com/spreadsheets/d/" . $insertedFile->getId() . "/edit' target='_blank'>" . $insertedFile->getTitle() . "</a>");
+                }
 //                }
 
             }

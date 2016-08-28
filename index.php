@@ -1,6 +1,6 @@
 <?php
 header('Location: connect.php');
-require __DIR__. '/config.php';
+require __DIR__ . '/config.php';
 require __DIR__ . '/asana.php';
 
 /**
@@ -23,10 +23,11 @@ if ($weekDay < 7 && $weekDay > 1) {
 }
 
 
-$datetime = new DateTime(date('Y-m-d '.TIME_CHECK_FROM, strtotime($previous.' day')), new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
-$datetime->setTimezone( new DateTimeZone(DATETIME_TIMEZONE_ASANA) );
+$datetime = new DateTime(date('Y-m-d ' . TIME_CHECK_FROM, strtotime($previous . ' day')),
+    new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
+$datetime->setTimezone(new DateTimeZone(DATETIME_TIMEZONE_ASANA));
 $startTasksDate = $datetime->format('Y-m-d\TH:i:s\Z');
-echo 'Start from:'.$startTasksDate." [".DATETIME_TIMEZONE_ASANA."]<br>";
+echo 'Start from:' . $startTasksDate . " [" . DATETIME_TIMEZONE_ASANA . "]<br>";
 
 
 /**
@@ -58,7 +59,8 @@ foreach ($workspacesJson->data as $workspace) {
     foreach ($projectsJson->data as $project) {
 
         // Get all tasks in the current project
-        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id], ['modified_since' => $startTasksDate/*, 'opt_fields' => 'tags, name'*/]);
+        $tasks = $asana->getTasksByFilter(['project' => $project->id, 'workspace' => $workspace->id],
+            ['modified_since' => $startTasksDate/*, 'opt_fields' => 'tags, name'*/]);
 //        var_dump($tasks);die;
 
         $tasksJson = json_decode($tasks);
@@ -69,9 +71,10 @@ foreach ($workspacesJson->data as $workspace) {
         $tasks = array();
         foreach ($tasksJson->data as $task) {
             $lastChar = substr(trim($task->name), -1);
-            if ($lastChar != ':')
-                    $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/'.$project->id.'/'.$task->id.'">' . $task->name . '</a> '
-                        /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/.'<br>' . PHP_EOL;
+            if ($lastChar != ':') {
+                $tasks[] = '+ <a target="_blank" href="https://app.asana.com/0/' . $project->id . '/' . $task->id . '">' . $task->name . '</a> '
+                    /*.(($task->tags) ? " [".implode (", ", $task->tags)."] " : '')*/ . '<br>' . PHP_EOL;
+            }
         }
 
         if ($tasks) {

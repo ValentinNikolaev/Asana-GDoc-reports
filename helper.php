@@ -66,7 +66,8 @@ function getStartTasksDate()
         $previous = "-3";
     }
 
-    $datetime = new DateTime(date('Y-m-d ' . TIME_CHECK_FROM, strtotime($previous . ' day')), new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
+    $datetime = new DateTime(date('Y-m-d ' . TIME_CHECK_FROM, strtotime($previous . ' day')),
+        new DateTimeZone(DATETIME_TIMEZONE_CURRENT));
     $datetime->setTimezone(new DateTimeZone(DATETIME_TIMEZONE_ASANA));
     return $datetime->format('Y-m-d\TH:i:s\Z');
 
@@ -78,8 +79,9 @@ function getClientNameByProjectId($projectId)
     global $clientsProjects;
     foreach ($clientsProjects as $clientData) {
         foreach ($clientData['projects'] as $project) {
-            if ($project['id'] == $projectId)
+            if ($project['id'] == $projectId) {
                 return $clientData['name'];
+            }
         }
     }
 
@@ -91,8 +93,9 @@ function getClientEmailsByProjectId($projectId)
     global $clientsProjects;
     foreach ($clientsProjects as $clientData) {
         foreach ($clientData['projects'] as $project) {
-            if ($project['id'] == $projectId)
+            if ($project['id'] == $projectId) {
                 return $clientData['send_to'];
+            }
         }
     }
     return [];
@@ -125,7 +128,8 @@ function getPropertyByKey($file, $key)
 }
 
 
-function logMessage($message, $level = LOG_INFO, $logHasStatus = false) {
+function logMessage($message, $level = LOG_INFO, $logHasStatus = false)
+{
     global $isCli;
     $statusTxt = "";
     switch ($level) {
@@ -157,69 +161,78 @@ function logMessage($message, $level = LOG_INFO, $logHasStatus = false) {
         }
 
     if ($isCli) {
-        $showMessage = colorizeCli($prefix, $status).": ".$message;
+        $showMessage = colorizeCli($prefix, $status) . ": " . $message;
         $delimeter = "\n";
     } else {
-        $showMessage = $prefix.": ".$message;
+        $showMessage = $prefix . ": " . $message;
         $delimeter = "<br>";
     }
 
     if ($statusTxt) {
-        $showMessage .= $isCli ? " [STATUS: ".colorizeCli($statusTxt, $statusColor)."]" : " [STATUS: ".$statusTxt."]";
-        $message .= " [STATUS: ".$statusTxt."]";
+        $showMessage .= $isCli ? " [STATUS: " . colorizeCli($statusTxt,
+                $statusColor) . "]" : " [STATUS: " . $statusTxt . "]";
+        $message .= " [STATUS: " . $statusTxt . "]";
     }
     $showMessage .= $delimeter;
     print($showMessage);
-    pushToLog($prefix.": ".$message);
+    pushToLog($prefix . ": " . $message);
 
 }
 
-function pushToLog($msg) {
+function pushToLog($msg)
+{
     global $log;
-    if (LOG_SHOW_DATETIME)
-        $msg = "<strong>".date(LOG_DATETIME_FORMAT)."</strong>"." ".$msg;
+    if (LOG_SHOW_DATETIME) {
+        $msg = "<strong>" . date(LOG_DATETIME_FORMAT) . "</strong>" . " " . $msg;
+    }
     $log[] = $msg;
 }
 
 
-function reportMessage($message) {
+function reportMessage($message)
+{
     global $report;
     $report[] = $message;
 }
 
 
-
-function logError($message) {
+function logError($message)
+{
     logMessage($message, LOG_ERR);
 }
 
-function logStatusFailure($message) {
+function logStatusFailure($message)
+{
     logMessage($message, LOG_WARNING, 0);
 }
 
-function logStatusSuccess($message) {
+function logStatusSuccess($message)
+{
     logMessage($message, LOG_INFO, 1);
 }
 
-function closeSession($sendMail = true) {
+function closeSession($sendMail = true)
+{
     logMessage("Close session");
-    if ($sendMail)
+    if ($sendMail) {
         sendAdminEmail(prepareEmailMessage());
+    }
     die;
 }
 
 
-function prepareEmailMessage() {
+function prepareEmailMessage()
+{
     global $report, $log;
 //    var_dump($log + $report);die;
     return implode("<br />", array_merge($report, ["<br><hr>"], $log));
 }
 
 
-
-function sendAdminEmail($messages) {
+function sendAdminEmail($messages)
+{
     global $emailConfig;
-    logMessage( 'Send email to '.EMAIL_ADMIN);
+    logMessage('Send email to ' . EMAIL_ADMIN);
     $mail = new PHPMailer;
     $mail->isSMTP();                                      // Set mailer to use SMTP
     $mail->Host = $emailConfig['host'];  // Specify main and backup SMTP servers
@@ -235,17 +248,18 @@ function sendAdminEmail($messages) {
     $mail->isHTML(true);                                  // Set email format to HTML
 
     $mail->Subject = $emailConfig['subject'];
-    $mail->Body    = $messages;
+    $mail->Body = $messages;
 
-    if(!$mail->send()) {
-        logMessage( 'Message could not be sent.');
-        logMessage( 'Mailer Error: ' . $mail->ErrorInfo);
+    if (!$mail->send()) {
+        logMessage('Message could not be sent.');
+        logMessage('Mailer Error: ' . $mail->ErrorInfo);
     } else {
-        logMessage( 'Message has been sent');
+        logMessage('Message has been sent');
     }
 }
 
-function refreshToken($client) {
+function refreshToken($client)
+{
     global $credentialsPath;
     $client->refreshToken($client->getRefreshToken());
     if (file_put_contents($credentialsPath, $client->getAccessToken())) {
@@ -258,7 +272,8 @@ function refreshToken($client) {
     return $client;
 }
 
-function getConnectedEmail($client) {
+function getConnectedEmail($client)
+{
     $service = new Google_Service_Gmail($client);
     return $service->users->getProfile('me')->emailAddress;
 }

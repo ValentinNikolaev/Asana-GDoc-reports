@@ -1,14 +1,13 @@
 {
   "name": "valentin_nikolaev/asana-gdoc-report",
   "description": "",
-  "license": "proprietary",
-
+  "license": "free",
   "repositories": [
-      {
-        "type": "vcs",
-        "url": "https://github.com/ajimix/asana-api-php-class"
-      }
-    ],
+    {
+      "type": "vcs",
+      "url": "https://github.com/ajimix/asana-api-php-class"
+    }
+  ],
   "require": {
     "ajimix/asana-api-php-class": "2.14.0",
     "google/apiclient": "1.*",
@@ -16,5 +15,4 @@
     "phpmailer/phpmailer": "~5.2",
     "ulrichsg/getopt-php": "2.3.*"
   }
-
 }

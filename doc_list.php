@@ -4,10 +4,8 @@ require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/helper.php';
 
 
-
 // Load previously authorized credentials from a file.
 $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH_PHP);
-
 
 
 /**
@@ -41,8 +39,6 @@ function getClient()
 }
 
 
-
-
 function catchGoogleExceptions($e)
 {
     global $credentialsPath, $client;
@@ -66,7 +62,7 @@ function catchGoogleExceptions($e)
 function retrieveReportFiles($service)
 {
     $result = array();
-    $pageToken = NULL;
+    $pageToken = null;
 
     do {
         try {
@@ -84,12 +80,11 @@ function retrieveReportFiles($service)
             $pageToken = $files->getNextPageToken();
         } catch (Exception $e) {
             catchGoogleExceptions($e);
-            $pageToken = NULL;
+            $pageToken = null;
         }
     } while ($pageToken);
     return $result;
 }
-
 
 
 /**
@@ -107,9 +102,9 @@ function createDraft($service, $user, $message)
     $draft->setMessage($message);
     try {
         $draft = $service->users_drafts->create($user, $draft);
-        print 'Draft ID: ' . $draft->getId().'<br>';
+        print 'Draft ID: ' . $draft->getId() . '<br>';
     } catch (Exception $e) {
-        print 'An error occurred: ' . $e->getMessage().'<br>';
+        print 'An error occurred: ' . $e->getMessage() . '<br>';
     }
     return $draft;
 }
@@ -117,9 +112,9 @@ function createDraft($service, $user, $message)
 $client = getClient();
 $service = new Google_Service_Drive($client);
 $gMailService = new Google_Service_Gmail($client);
-echo 'Current account: '.getConnectedEmail($client).'<br>';
+echo 'Current account: ' . getConnectedEmail($client) . '<br>';
 $user = $service->about->get()->getUser();
-logMessage('Drive owner:' .$user->displayName.' ['.$user->emailAddress.']');
+logMessage('Drive owner:' . $user->displayName . ' [' . $user->emailAddress . ']');
 
 
 // Print the names and IDs for up to 10 files.
@@ -147,10 +142,12 @@ if (count($gFiles) == 0) {
             $folders[] = htmlspecialchars($folderData->getTitle());
         }
 
-        $fileLink = "<a href='".$downloadUrl."' target'_blank'>".$file->getTitle()."</a>";
-        echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">'.implode("/", $folders).'/'. $fileLink.'<br>';
-        echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "'.implode(",",getClientEmailsByClientName(getPropertyByKey($file, 'asanaClientName'))).'">';
-        echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "'.EMAIL_REPORT_SUBJECT.'">';
+        $fileLink = "<a href='" . $downloadUrl . "' target'_blank'>" . $file->getTitle() . "</a>";
+        echo '<input type="checkbox" name="report[]" value="' . $downloadUrl . '">' . implode("/",
+                $folders) . '/' . $fileLink . '<br>';
+        echo '<input type="hidden" name="to:' . base64_encode($downloadUrl) . '" value = "' . implode(",",
+                getClientEmailsByClientName(getPropertyByKey($file, 'asanaClientName'))) . '">';
+        echo '<input type="hidden" name="subject:' . base64_encode($downloadUrl) . '" value = "' . EMAIL_REPORT_SUBJECT . '">';
 //        printf("%s (%s) %s\n",
 //            $file->getTitle(),
 //            $file->getId(),
@@ -167,15 +164,16 @@ if (isset($_POST['report'])) {
     foreach ($_POST['report'] as $reportUrl) {
         $to = EMAIL_REPORT_TO;
         $subject = EMAIL_REPORT_SUBJECT;
-        $msg = EMAIL_REPORT_BODY."\n";
+        $msg = EMAIL_REPORT_BODY . "\n";
 
-        if (isset($_POST['to:'.base64_encode($reportUrl)]))
-                $to = $_POST['to:'.base64_encode($reportUrl)];
-        if (isset($_POST['subject:'.base64_encode($reportUrl)]))
-            $subject = $_POST['subject:'.base64_encode($reportUrl)];
+        if (isset($_POST['to:' . base64_encode($reportUrl)])) {
+            $to = $_POST['to:' . base64_encode($reportUrl)];
+        }
+        if (isset($_POST['subject:' . base64_encode($reportUrl)])) {
+            $subject = $_POST['subject:' . base64_encode($reportUrl)];
+        }
 
         $mail = "To: $to\nSubject: $subject\n";
-
 
 
         $message = new Google_Service_Gmail_Message();
@@ -198,7 +196,7 @@ if (isset($_POST['report'])) {
 
 
             //$im = file_get_contents($reportUrl);
-            if ($im === FALSE) {
+            if ($im === false) {
                 echo 'Skipped. Cannot receive file  ' . $reportUrl . '<br>';
                 continue;
             }

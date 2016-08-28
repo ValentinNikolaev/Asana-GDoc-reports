@@ -77,11 +77,13 @@ if (!is_writable(TMP_PATH)) {
     die("<strong>" . TMP_PATH . "</strong> is not <u>writable</u>");
 }
 
-if (!ASANA_API_KEY)
+if (!ASANA_API_KEY) {
     die("<strong>ASANA_API_KEY</strong> is empty");
+}
 
-if (!BASE_SERVER)
+if (!BASE_SERVER) {
     die("<strong>BASE_SERVER</strong> is empty");
+}
 
 $client = getClient();
 echo 'Current account: ' . getConnectedEmail($client);
