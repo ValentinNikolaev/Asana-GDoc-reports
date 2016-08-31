@@ -3,6 +3,9 @@
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/config.php';
 
+/**
+ * @todo this should be replaced asap
+ * /
 global $gProjectDir;
 global $humanTags;
 global $credentialsPath;
