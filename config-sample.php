@@ -114,7 +114,7 @@ define('GDOC_PDF_MIME', 'application/pdf');
 define('APPLICATION_NAME', 'Asana GDoc CLI');
 define('CREDENTIALS_PATH', __DIR__ . '/credentials/drive-api-asana-gdoc-cli.json');
 define('CREDENTIALS_PATH_PHP',/* __DIR__.'/credentials/drive-api-asana-gdoc.json'*/
-CREDENTIALS_PATH);
+    CREDENTIALS_PATH);
 
 define('TMP_PATH', __DIR__ . '/tmp/');
 define('REPORTS_PATH', __DIR__ . '/reports/');

@@ -21,8 +21,8 @@ class Asana
 {
     public $responseCode;
     private $timeout = 10;
-        private $debug = false; // Note that enabling advanced debug will include debugging information in the response possibly breaking up your code
-private $advDebug = false;
+    private $debug = false; // Note that enabling advanced debug will include debugging information in the response possibly breaking up your code
+    private $advDebug = false;
     private $asanaApiVersion = '1.0';
     private $endPointUrl;
     private $apiKey;

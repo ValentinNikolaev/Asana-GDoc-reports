@@ -6,26 +6,26 @@ require __DIR__ . '/config.php';
 /**
  * @todo this should be replaced asap
  * /
-global $gProjectDir;
-global $humanTags;
-global $credentialsPath;
-global $client;
-global $clientsProjects;
-global $log;
-global $report;
-global $isCli;
-global $emailConfig;
-
-$isCli = php_sapi_name() == "cli";
-$report = [
-    '<br>',
-];
-$log = [
-    '<h1><strong>Process logs</h1></strong>',
-];
-
-if (DEBUG) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(-1);
-}
+ * global $gProjectDir;
+ * global $humanTags;
+ * global $credentialsPath;
+ * global $client;
+ * global $clientsProjects;
+ * global $log;
+ * global $report;
+ * global $isCli;
+ * global $emailConfig;
+ *
+ * $isCli = php_sapi_name() == "cli";
+ * $report = [
+ * '<br>',
+ * ];
+ * $log = [
+ * '<h1><strong>Process logs</h1></strong>',
+ * ];
+ *
+ * if (DEBUG) {
+ * ini_set('display_errors', 1);
+ * ini_set('display_startup_errors', 1);
+ * error_reporting(-1);
+ * }
