@@ -1,6 +1,10 @@
 # Notes
 Master branch is for test only. Check v2 branch for updates.
 
+# ToDo
+Replace with Guzzle
+
+
 # Usage
 1. Composer install
 2. Copy config-sample.php to config.php. Make needed changes
