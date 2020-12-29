@@ -1,3 +1,6 @@
+![GitHub last commit](https://img.shields.io/github/last-commit/ValentinNikolaev/asana-gdoc-export)
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=ValentinNikolaev.asana-gdoc-export)
+
 # Notes
 Master branch is for test only. Check v2 branch for updates.
 
